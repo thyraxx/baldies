@@ -18,3 +18,12 @@ Desktop.ini
 # Python Cache
 __pycache__/
 *.py[cod]
+
+# C Build Artifacts
+build/
+bin/
+obj/
+*.obj
+*.pdb
+*.ilk
+
