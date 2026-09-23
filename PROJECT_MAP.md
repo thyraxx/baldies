@@ -189,13 +189,13 @@ Defined in [ddraw.ini](file:///i:/Baldies/ddraw.ini):
 
 ---
 
-## 7. Dynamic In-Game Viewport & Camera Resolution Architecture
+## 7. Resolution Architecture & Reverse Engineering Analysis
 
-### Overview
-Unlike simple wrapper-level pixel upscaling, the engine itself has been patched to dynamically support high resolutions (e.g. 1024x768, 1280x960, 1600x1200, 1920x1080). When a resolution is applied, the actual in-game camera viewport and DirectDraw surface expand, displaying more tiles and world area simultaneously.
+### Overview & Technical Findings
+During development, comprehensive reverse engineering of `baldies.exe` (Open Watcom C/C++ 32-bit x86) was conducted to explore dynamically expanding the engine's internal camera viewport, composition buffers, and DirectDraw surfaces beyond the classic 640x480 resolution.
 
-### Key Resolution & Viewport Variables
-| Variable Address | Type | Original Value | Role |
+### Disassembly Map: Key Resolution & Viewport Locations
+| Variable Address | Type | Original Value | Role / Significance |
 | :--- | :--- | :--- | :--- |
 | `[0x0046164C]` | `uint16` | 640 | Active Screen / Buffer Width |
 | `[0x0046164A]` | `uint16` | 480 | Active Screen / Buffer Height |
@@ -207,21 +207,25 @@ Unlike simple wrapper-level pixel upscaling, the engine itself has been patched 
 | `[0x004514AC]` | `uint32` | 640 (hardcoded) | Assembly Rendering Scanline Stride / Pitch |
 | `[0x0045C01C]` | `uint32` | Dynamic | DirectDraw Surface Pitch from `DDSURFACEDESC.lPitch` |
 
-### Key Engine Binary Patches
+### Key Engine Binary Routines
 1. **Dynamic Surface Pitch (`0x00416FE9` / Raw `0x0163E7`)**:
    Replaced hardcoded `mov [0x004514AC], 640` with `mov eax, [0x0045C01C]; mov [0x004514AC], eax` (10 bytes exact), dynamically synchronizing the assembly drawing pitch with DirectDraw.
 2. **Display Mode & DirectDraw Allocation (`0x00407355` / `0x00407411`)**:
    Passes target `Width` and `Height` to `IDirectDraw::SetDisplayMode` and `IDirectDraw::CreateSurface`.
 3. **Offscreen World & Screen Buffer Allocations (`0x004150DF` / `0x00415587`)**:
-   Passes target `Width` and `Height` to the internal buffer allocator (`0x00401010`) for `[0x00461DC0]` (offscreen world rendering buffer) and `[0x004614FC]` (screen composition buffer). Prevents the in-game canvas from being trapped in a 640x480 sub-region (1/4 window size).
+   Passes target `Width` and `Height` to the internal buffer allocator (`0x00401010`) for `[0x00461DC0]` (offscreen world rendering buffer) and `[0x004614FC]` (screen composition buffer).
 4. **Full Screen Clears (`0x004087DD`, `0x00415C4C`, `0x00445512`, `0x0044552D`, `0x00445A9C`, `0x00445AB7`)**:
-   Updates all `ClearRect` calls to span the full `Width` and `Height`, preventing ghost trails and black unpainted zones.
+   `ClearRect` calls spanning screen width and height.
 5. **Camera Traversal & Tile Visibility Loop (`0x0040E948` - `0x0040EA10`)**:
-   Iterates across `[0x00461644]` and `[0x00461646]`, rendering tiles across the expanded field of view.
+   Iterates across `[0x00461644]` and `[0x00461646]` to traverse visible tile coordinates.
 6. **Bottom HUD Alignment & Clipping (`0x00407103`, `0x00416FF8`)**:
-   Sets screen bottom boundary to `Height - 32`, cleanly anchoring the bottom HUD panel to the bottom edge of the window.
+   Sets screen bottom boundary to `Height - 32`, anchoring the bottom HUD panel.
 7. **Clipping Bounds (`0x0041719A`, `0x00417208`, `0x0041723C`, `0x00418930`)**:
-   Updates 2D clipping rectangles to match target `Width` and `Height`, allowing world rendering to span the entire screen.
+   Sets 2D clipping boundaries.
+
+### Stability Analysis & Modernization Strategy
+- **Internal Engine Architecture Limitation**: While the DirectDraw viewport and camera traversal can be modified, the game engine's internal asset unpackers and level loading routines (`LEV*.BAL`, `BOR*.BAL`, sprite banks) rely on fixed 640x480 memory boundary structures and Watcom C near/far heap layouts. Reallocating the internal composition buffers causes heap corruption and fatal crashes during the level loading sequence.
+- **Production Solution**: Wrapper-level integer and aspect-ratio scaling via `cnc-ddraw` (`ddraw.ini`) is the verified, 100% crash-free method for modern high resolutions (1024x768, 1280x960, 1600x1200, 1920x1080). This retains full game stability, level loading reliability, authentic 30 TPS simulation, and crisp presentation without risking memory corruption.
 
 ---
 
