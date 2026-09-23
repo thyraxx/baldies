@@ -189,7 +189,39 @@ Defined in [ddraw.ini](file:///i:/Baldies/ddraw.ini):
 
 ---
 
-## 7. Branching & Modification Policy
+## 7. Dynamic In-Game Viewport & Camera Resolution Architecture
+
+### Overview
+Unlike simple wrapper-level pixel upscaling, the engine itself has been patched to dynamically support high resolutions (e.g. 1024x768, 1280x960, 1600x1200, 1920x1080). When a resolution is applied, the actual in-game camera viewport and DirectDraw surface expand, displaying more tiles and world area simultaneously.
+
+### Key Resolution & Viewport Variables
+| Variable Address | Type | Original Value | Role |
+| :--- | :--- | :--- | :--- |
+| `[0x0046164C]` | `uint16` | 640 | Active Screen / Buffer Width |
+| `[0x0046164A]` | `uint16` | 480 | Active Screen / Buffer Height |
+| `[0x00461644]` | `uint16` | 640 | Camera Viewport Bounding Clamp Width |
+| `[0x00461646]` | `uint16` | 480 | Camera Viewport Bounding Clamp Height |
+| `[0x00461642]` | `uint16` | 448 (`H - 32`) | Screen Bottom Y Bound (HUD panel placement & tile clip limit) |
+| `[0x0045C054]` / `[0x0045C048]` | `uint16` | 640 | 2D Clipping Rectangle Right Limit |
+| `[0x0045C052]` / `[0x0045C044]` | `uint16` | 480 | 2D Clipping Rectangle Bottom Limit |
+| `[0x004514AC]` | `uint32` | 640 (hardcoded) | Assembly Rendering Scanline Stride / Pitch |
+| `[0x0045C01C]` | `uint32` | Dynamic | DirectDraw Surface Pitch from `DDSURFACEDESC.lPitch` |
+
+### Key Engine Binary Patches
+1. **Dynamic Surface Pitch (`0x00416FE9` / Raw `0x0163E7`)**:
+   Replaced hardcoded `mov [0x004514AC], 640` with `mov eax, [0x0045C01C]; mov [0x004514AC], eax` (10 bytes exact), dynamically synchronizing the assembly drawing pitch with DirectDraw.
+2. **Display Mode & Surface Allocation (`0x00407355` / `0x00407411`)**:
+   Passes target `Width` and `Height` to `IDirectDraw::SetDisplayMode` and `IDirectDraw::CreateSurface`.
+3. **Camera Traversal & Tile Visibility Loop (`0x0040E948` - `0x0040EA10`)**:
+   Iterates across `[0x00461644]` and `[0x00461646]`, rendering tiles across the expanded field of view.
+4. **Bottom HUD Alignment & Clipping (`0x00407103`, `0x00416FF8`)**:
+   Sets screen bottom boundary to `Height - 32`, cleanly anchoring the bottom HUD panel to the bottom edge of the window.
+5. **Clipping Bounds (`0x0041719A`, `0x00417208`, `0x0041723C`, `0x00418930`)**:
+   Updates 2D clipping rectangles to match target `Width` and `Height`, allowing world rendering to span the entire screen.
+
+---
+
+## 8. Branching & Modification Policy
 - **Base Branch**: `master` (`3935b64` - Init) is the verified working reference baseline.
 - **Workflow for Enhancements**:
   1. Create a dedicated local branch: `git checkout -b feature/<name>` or `git checkout -b opt/<name>`.
