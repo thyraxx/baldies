@@ -174,7 +174,11 @@ Defined in [ddraw.ini](file:///i:/Baldies/ddraw.ini):
 | :--- | :--- | :--- |
 | `windowed` | `true` | Runs in windowed mode (avoids Windows 11 exclusive display crashes) |
 | `maintas` / `aspect_ratio` | `true` / `4:3` | Prevents stretching on widescreen displays |
-| `width` / `height` | `1280` / `960` | Upscales low-res 320x240/640x480 cleanly on modern monitors |
+| `width` / `height` | `1280` / `960` (default) | Upscales low-res 320x240/640x480 cleanly on modern monitors |
+| `inject_resolution` | `800x600,1024x768,...` | Injects custom resolution presets into DirectDraw enumeration |
+| `resolutions` | `2` | Exposes full resolution list to DirectDraw |
+| `toggle_borderless` | `true` | Alt+Enter toggles between windowed upscaled and borderless native resolution |
+| `keytogglemaximize` | `0x22` (Alt+PgDown) | Maximize window to screen bounds preserving 4:3 |
 | `maxfps` | `60` | Caps Direct3D rendering flips |
 | `maxgameticks` | `30` | Throttles internal game simulation to authentic 30 ticks/second |
 | `limiter_type` | `4` | Hooks `PeekMessageA` to throttle the game loop |

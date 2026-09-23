@@ -45,11 +45,25 @@ Double-click either:
 - **`baldies.exe`** (Standard executable, uses portable relative asset path)
 - **`baldies_win11.exe`** (Patched standalone executable, completely self-contained)
 
+### Resolution Selector & Launcher
+- Double-click **`set_resolution.bat`** (or run `python set_resolution.py`) to choose between modern resolution presets:
+  - `[1]` **1024 x 768** (Classic 4:3 Window)
+  - `[2]` **1280 x 960** (Standard HD 4:3 Window — Default)
+  - `[3]` **1440 x 1080** (Full-Height 1080p 4:3 Window)
+  - `[4]` **1600 x 1200** (UXGA 4:3 Window — 2.5x Integer Scale)
+  - `[5]` **1920 x 1440** (QHD 4:3 Window — 3x Integer Scale)
+  - `[6]` **1920 x 1080** (Borderless Fullscreen — 1080p Pillarboxed)
+  - `[7]` **2560 x 1440** (Borderless Fullscreen — 1440p Pillarboxed)
+  - `[8]` **3840 x 2160** (Borderless Fullscreen — 4K UHD Pillarboxed)
+  - `[9]` **Custom Resolution** (Any custom width x height)
+
 ### Multiplayer
 - Double-click **`baldnet.exe`**.
 
 ### In-Game Hotkeys & Controls
-- **Alt + Enter**: Toggle between windowed mode and borderless fullscreen.
+- **Alt + Enter**: Toggle seamlessly between windowed mode and borderless fullscreen native resolution.
+- **Alt + PageDown**: Maximize window to fill monitor height while preserving the 4:3 aspect ratio.
+- **Ctrl + Tab** or **Right Alt**: Unlock mouse cursor from game window.
 - **Mouse Controls**:
   - **Left Click**: Select Baldies, place buildings, assign roles inside houses, drop inventions.
   - **Right Click / Drag**: Scroll map view, drop selected Baldies.
@@ -59,8 +73,9 @@ Double-click either:
 ## Customizing Display & Speed
 
 You can easily customize graphics, shaders, and game speed:
-1. **Interactive Config Utility**: Run **`cnc-ddraw config.exe`** to select renderers (Direct3D 9, Direct3D 11, OpenGL), display resolutions, and post-processing shaders (xBRZ, CRT scanlines, bilinear filtering).
-2. **Manual Configuration (`ddraw.ini`)**:
+1. **Resolution Selector Tool**: Run **`set_resolution.bat`** to switch resolutions instantly.
+2. **Interactive Config Utility**: Run **`cnc-ddraw config.exe`** to select renderers (Direct3D 9, Direct3D 11, OpenGL), display resolutions, and post-processing shaders (xBRZ, CRT scanlines, bilinear filtering).
+3. **Manual Configuration (`ddraw.ini`)**:
    - **Game Speed**: Adjust `maxgameticks=30` (e.g. `25` for slower pace, `30` for default, `45` or `60` for fast pace).
    - **Window Resolution**: Modify `width=1280` and `height=960` to your preferred window size.
    - **Fullscreen**: Set `fullscreen=true` to launch in borderless fullscreen by default.
