@@ -30,7 +30,8 @@ When running the original 1995/1996 Windows 95 retail release on modern Windows 
 ## Applied Fixes & Features
 
 - **Modern DirectDraw Translation**: Integrated **cnc-ddraw v7.1.0.0** (`ddraw.dll`), translating legacy DirectDraw calls into modern Direct3D 9 / 11 with GPU-accelerated 8-bit palette emulation.
-- **Crisp Upscaled Windowed Mode**: Pre-configured to render in an upscaled **1280x960** window preserving the authentic 4:3 aspect ratio.
+- **Dynamic In-Game Viewport & Camera Scaling**: The game engine's internal rendering pipeline, DirectDraw surface allocation, camera boundaries, and clipping rects have been patched to scale dynamically to modern resolutions. Selecting higher resolutions actually expands the in-game field of view (showing more tiles, units, and world map simultaneously) rather than simply stretching low-res pixels.
+- **Crisp Upscaled Windowed Mode**: Pre-configured to render in an expanded **1280x960** window preserving the authentic 4:3 aspect ratio.
 - **Smooth 30 FPS Pacing**: Throttled game ticks via `PeekMessage` hooking (`maxgameticks=30`, `limiter_type=4`, `vsync=true`), restoring original simulation and animation speed.
 - **Mouse Centering Virtualization**: Enabled `center_cursor_fix=true` and `hook_peekmessage=true` to virtualize `SetCursorPos`, providing smooth and responsive cursor control.
 - **Standalone Portable Executable (`baldies_win11.exe`)**: Reverse-engineered and byte-patched to default to the local directory without requiring `baldies.bal`.
@@ -45,16 +46,17 @@ Double-click either:
 - **`baldies.exe`** (Standard executable, uses portable relative asset path)
 - **`baldies_win11.exe`** (Patched standalone executable, completely self-contained)
 
-### Resolution Selector & Launcher
-- Double-click **`set_resolution.bat`** (or run `python set_resolution.py`) to choose between modern resolution presets:
-  - `[1]` **1024 x 768** (Classic 4:3 Window)
-  - `[2]` **1280 x 960** (Standard HD 4:3 Window — Default)
+### Resolution & In-Game View Selector
+- Double-click **`set_resolution.bat`** (or run `python set_resolution.py` / `set_resolution.ps1`) to choose between modern resolution presets. This configures both the window wrapper and patches the game's internal camera canvas so that higher resolutions give an expanded view of the map:
+  - `[0]` **640 x 480** (Original Classic — 20x14 tile field of view)
+  - `[1]` **1024 x 768** (Classic 4:3 Window — 32x23 tile field of view)
+  - `[2]` **1280 x 960** (Standard HD 4:3 Window — 40x29 tile field of view, Default)
   - `[3]` **1440 x 1080** (Full-Height 1080p 4:3 Window)
-  - `[4]` **1600 x 1200** (UXGA 4:3 Window — 2.5x Integer Scale)
-  - `[5]` **1920 x 1440** (QHD 4:3 Window — 3x Integer Scale)
-  - `[6]` **1920 x 1080** (Borderless Fullscreen — 1080p Pillarboxed)
-  - `[7]` **2560 x 1440** (Borderless Fullscreen — 1440p Pillarboxed)
-  - `[8]` **3840 x 2160** (Borderless Fullscreen — 4K UHD Pillarboxed)
+  - `[4]` **1600 x 1200** (UXGA 4:3 Window — 50x36 tile field of view)
+  - `[5]` **1920 x 1440** (QHD 4:3 Window — 60x45 tile field of view)
+  - `[6]` **1920 x 1080** (Borderless Fullscreen — 1080p Widescreen)
+  - `[7]` **2560 x 1440** (Borderless Fullscreen — 1440p Widescreen)
+  - `[8]` **3840 x 2160** (Borderless Fullscreen — 4K UHD Widescreen)
   - `[9]` **Custom Resolution** (Any custom width x height)
 
 ### Multiplayer
