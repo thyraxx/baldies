@@ -1,0 +1,1092 @@
+	It's a Bald World!
+Welcome to the amazing worlds of Baldies, where our folicly
+challenged little friends engage in hilarious acts of war.
+With a skilled team of workers, builders, soldiers and
+scientists the Baldies scatter the land with their towns,
+forests, laboratories and barracks, not to mention mine fields
+and cannons. Unfortunately Baldies are not the smartest breed
+and rely on their ally in the sky to sweep them from danger
+and return them home, to guide them on their campaigns, to lead
+their scientists to new levels of invention, to plan strategies
+that will help them overcome the evil forces opposing them.
+
+You'll find five worlds and 100 levels to conquer in the
+Baldies universe, including secret warps, levels and tricks 
+to add to the fun. It's never the same game twice!
+
+
+	Installation
+
+System Requirements
+Windows 95 Version:
+Computer: 486 DX2-66MHz or higher processor
+Memory: 8 MB RAM
+Video Card:  Windows95 compatible SVGA
+O/S: Windows95
+CD-ROM Drive:Double speed or higher
+Sound Card: Windows95 compatible
+Mouse: Microsoft(r) compatible
+Microsot DirectX 2 (included)
+
+To play a multi-player Baldies network game,
+you need all above system requirements, plus:
+Network: IPX compatible with all necessary drivers installed
+
+
+
+	Installation Instructions
+
+Win95 version
+To install Baldies in Win95, put the Baldies CD in your CD-ROM drive. 
+Press the "Start" button on your Win95 task Bar (lower part of the 
+screen) and select "RUN". In the dialog box that appears type 
+D:\setup, where D is your CD-ROM drive. You will then be prompted 
+for the directory where you would like Baldies to be installed 
+(the default is C:\Baldies for Windows 95). You can hit the 
+button marked Read Me for important installation notes. Once 
+you have chosen the directory to install to,  press the Install 
+button to commence the installation process. 
+Baldies will copy only a minimal number of files to your hard 
+drive, the CD is needed to play the game. Baldies also requires 
+Direct X 2 to run, and you will be prompted for the installation 
+of Direct X 2. If you know you have installed version 2 of 
+Direct X, you can un-check the boxes next to the items you 
+have previously installed. If you are unsure if you have 
+Direct X 2, leave the boxes checked. Direct X will check your 
+setup and only install if you have no version of Direct X, or 
+if you have an older version. The setup program will create a 
+program group called Baldies for Windows 95, and prompt you 
+that the setup process is complete. Hit the OK button and you 
+are ready to play. 
+To begin a single player game, go to the Start Menu and select 
+Programs, then Baldies for Windows 95 and choose Start Baldies 
+Single Player.
+
+	Networking Baldies
+
+To run a network game you must have an IPX compatible network, 
+with all necessary drivers installed. 
+
+Windows 95 Version
+To start a networked game of Baldies go to the Start Menu and 
+select Programs, then Baldies for Windows 95 and choose Start 
+Baldies on Network. You will be prompted to choose the connection 
+method. Choose Winsock IPX connection for DirectPlay, and click
+OK. You will then see a list of all active Baldies games.
+The search button will refresh the list of active games.
+Choose a game from the list, or select the Create button, which
+will allow you to create a game that will appear on other lists.
+If you choose to join an active game, you will be added to the
+player list. During this time you will get a message that you
+are waiting for other players. This message will stay on the
+screen until the master has started the game, at which time
+the game will commence.
+If you choose to create a game, you will be prompted to enter
+a name for it. This name can be any of your choosing (maximum
+of 16 characters), and will identify your game to others. You
+must then enter your player name, again this can be any of your
+choosing (16 character maximum). You will then see a list of
+players currently in your session, you can hit start at any
+time that you have at least one other player in your game. Once
+you hit start, however, no new players can join your game. After
+you start the net game, you will have the choice of levels to
+play. When you have chosen the level you desire, click on the
+waving Baldy in the lower right hand corner.
+
+During a network game you can communicate with other
+players. This can be very useful for taunting your opponents.
+To communicate with other players, use the Function Keys, as follows:
+
+	F1	Player 1
+	F2	Player 2
+	F3	Player 3
+	F4	Player 4
+	F5	All Players
+
+To send a message to a particular person, simply hit the 
+Function Key that corresponds to that person. A text message 
+will appear on the screen indicating who will receive the 
+message. Type the message you want to send and press Enter. 
+To broadcast a message to all players, hit the F5 key, type 
+your message and press Enter.
+
+At the end of the network game, a status screen will show statistics 
+for all players in that game.
+
+
+
+	Getting Started 
+
+WIN95
+Log In Screen
+Type your name on the Name line. This is how Baldies will track 
+your progress. The next time you play, your name will be on the 
+list below the card. Just click to select your name, and you'll 
+be able to continue right where you left off! Up to 8 players 
+can save their names so they can all start at or below the 
+last level they completed.
+
+Level Select Screen
+The top box shows the five different worlds in the Baldies 
+universe: Green, Ice, European, Desert and Hell. Each world 
+has lots of levels to conquer, which are shown in the larger 
+box below it. Use the mouse to move your pointer around the 
+screen. Move the pointer to the right or left arrows and 
+press the Left mouse button to scroll through the levels. 
+The worlds and levels must be completed in order, and 
+until they're completed you can't go to the next level 
+or world. The level picture in the center of the screen 
+will have a red X if you cannot access this level yet. 
+But you can replay any level you've previously completed. 
+When you've made your selection, move the pointer to the 
+"Thumbs Up" Baldy in the lower right corner. Or, move the 
+pointer to the level on the screen, and click the Left 
+mouse button. To quit the game and go back to Windows 95, 
+click on the "Waving goodbye" Baldy in the lower left 
+corner at any time.
+
+
+	Controls
+
+Moving around in Baldies is easy. Your mouse controls most of the 
+functions. Use the Left mouse button to select and move items, 
+move around the screen, etc. Use the Right mouse button when 
+using the Advisor Baldy to find out what items are, and for 
+other special commands.
+
+Mouse			Moves pointer or hand all around the screen
+Left mouse button	Selects icons, performs game actions
+Right mouse button	When the Advisor is on, click to identify 
+			objects, other special functions
+P			Pauses and un-pauses the game
+Esc	 		Quits the current level and goes back to 
+			the Level Select screen
+
+You can use the number keys located near the top of your keyboard 
+(not the ones in the number pad), to select some of the icons 
+on the screen:
+	1	Worker Baldy
+	2	Builder Baldy
+	3	Soldier Baldy
+	4	Scientist Baldy
+	5	Angel Wings
+	6	Flag
+	7	Shovel
+	8	Hand
+
+Getting To Know Baldies
+In this world you have total control of the Baldies. You decide 
+what type they are, where they live, what they build, invent 
+and attack. To manage such a task, helpful icons and tools 
+are available in panels around the screen during the game. 
+To use these, move the mouse to the icon and press the Left 
+mouse button.
+
+Panels 	Main Control panel
+
+
+The Icons from Left to right are as follows:
+ 	Worker Icon	
+Selecting the worker Icon allows you to change your Baldies 
+job to a Worker. This can be done by selecting this icon, then 
+either single clicking on a Baldy on the screen or clicking on 
+the screen and 'dragging' the shaded box which will appear over 
+an area of land, when you let go of the button the Baldies 
+inside the shaded area will be turned into a Worker.
+
+
+
+	Builder Icon	
+
+Same functionality as the Worker Icon except turns the Baldies 
+into Builders.
+
+
+ 	Soldier Icon	
+
+Same functionality as the Worker Icon except turns the 
+Baldies into Soldiers.
+
+
+ 	Scientist Icon	
+
+Same functionality as the Worker Icon except turns the 
+Baldies into Scientists.
+
+
+	Angel Wings	
+
+There comes a point in the game when there is just not enough 
+time to pick up a Baldy with the Grab Hand (below) and drag 
+the Baldies into the house or over the water to attack the 
+enemy. When this happens the Angel wings Icon is more than 
+useful. By highlighting an area of the land with the Angel 
+wings icon, you can turn the Baldies in the area into Angels 
+who will then fly to wherever you tell them to. This can be 
+to the  inside of a house so you can breed them for a while 
+or it can be onto the enemies land for a surprise attack or 
+even tell them to land in the water if you want to. There is 
+a small amount of energy which gets used up for using this 
+icon but not that much in comparison to how useful it is as 
+a tool. This icon is initially turned off when the level 
+starts, it gets turned on when you have built four houses 
+and have sufficient red energy.
+
+
+	Shovel	 
+
+Another icon which is turned off when the level is started. 
+The Shovel will be turned on after the player has built three 
+houses and has sufficient red energy. Need more land to build 
+a house? Are you getting invaded by the enemy from across the 
+land corridor they created? Then you need to use the shovel 
+icon to add or remove land. The Shovel uses some energy so 
+use it wisely or you will find you have no red energy for other 
+purposes. The Shovel can also be used to trap Baldies on 
+islands or even to drown them if you so desire. A very useful tool.
+
+
+	Construction Flag	
+
+When you need to build a new house on the land, make your stake 
+on the land by placing down the construction flag. All of the 
+Builders in the vacinity will see this and instantly start 
+making their way to the flag where they will go through the 
+process of building a house. The flag can only be placed on 
+land where there is enough room to actually build a house. 
+The builders will of course need builder energy which is the 
+blue bar on the main panel before any actual construction takes 
+place.
+
+
+	Grab Hand 	
+
+You can use the grab hand  for more than just picking up your 
+own teams Bald population, you can also use it to pick up other 
+things on the environment such as rocks, sticks, rabbits and 
+anything else that's not nailed down to the ground. The hand 
+is initially the easiest method of putting Baldies inside 
+the house, just grab them and drop them inside the house, 
+its as easy as that. The only thing that cannot be picked 
+up apart from the obvious houses and trees are the enemies 
+Baldies.
+Cows and animals can be picked up and dropped wherever you 
+wish. But be ultra careful not to click on Helicopter blades 
+as they can hurt those little fingers of yours making it 
+impossible to pick things up for a short while. Carrying 
+things around the map will cost some energy, the heavier 
+the object the more energy it takes, Baldies are fairly 
+light, cows are extremely heavy; when the energy runs 
+out you automatically drop whatever you were carrying 
+regardless of where you are on the map.
+
+
+	Power Bars	
+
+Power bars represent the materials you have collected and the 
+power that you posses. 
+
+Red bar:	Worker power bar
+The red bar will fill up when you have worker Baldies outside, 
+it will drain when panel tools are being used.
+
+Blue bar:	Builder power bar
+Builder power will fill up when Builders are outside of the 
+house collecting materials, it will be drained when Builders 
+build houses or repair damage sustained to the house either 
+through neglect or through enemy inflicted damage.
+
+Green bar:	Soldier power bar
+Fills up when Soldiers are inside the Barracks making 
+ammunition, which the soldiers outside use when firing bullets 
+and grenades at the enemies or attacking the enemies houses. 
+When you drop bombs from the Helicopter, the Bombs are once 
+again controlled by the ammunition your Soldiers have 
+manufactured which once again reduces the green bar.
+
+White bar:	Scientist power bar
+Scientists need materials for all of the mines, traps, 
+inventions and contraptions they are forced into making. 
+This needs white energy which as is firmly established, is 
+increased by having Scientists outside collecting material.
+
+
+Invention bar and game options.
+
+
+
+The left hand side of the invention bar has six slots which are 
+where the inventions are placed when they are being worked on 
+by the scientists, this is also where you select the invention 
+which you wish to select or use in the game.
+ 
+When the scientists start to work on an invention (see inside 
+house) the first free slot will be filled with an icon of the 
+invention, the bar to the right hand side of each invention 
+slot shows the progress the scientists have made. 
+If the Bar is 'Red' the invention is in development and 
+the scientists are working hard to build it for you. The 
+height of the red bar shows how close to completion they are. 
+When the invention has been manufactured the bar will turn 
+green to show you can use it.
+Most inventions are used by selecting the invention by 
+clicking on it's Icon, then placing it onto the playing 
+area again by clicking on the land. If the invention is 
+of the deliverable type such as a Landmine or a Trap, then 
+an 'X' will appear on the ground. The 'X' marks the spot 
+for the scientist who will be delivering the invention to 
+that area. The nearest scientist to the 'X' will be selected 
+for this purpose.
+
+
+	Trashcan	
+
+To the right hand side of the invention slots is the Trashcan. 
+If you have been playing Baldies for a while you may run out 
+of space on the invention panel. to free up some space for 
+the new invention you wish to make, just click on the 
+Trashcan, which will graphically open, then click on the 
+invention slot you wish to 'trash'. The old invention will 
+disappear making a space for the new one.
+
+
+
+	Map View	
+
+Sometimes its nice to see what's going on in the world from 
+above, the Map view does this by opening up a small resizable 
+window (picture) which shows a miniature version of the world. 
+This is very useful for quickly checking how many houses the 
+enemy have, or where they are on the map - without scrolling 
+all over the world looking for them. The Map also shows where 
+the Baldies are, this allows you to see if the enemy are 
+sending an attack force to raid your  castle giving you some 
+precious time to take preventative measures (if you have not 
+already done so).
+
+
+	Zoom mode	
+
+Clicking the Magnifying glass will zoom into the screen, clicking 
+again will zoom you out of the screen. This allows you to view the 
+battle scenes with particular ease. This is also rather handy when 
+trying to catch fish, zoom up close and the fish are four times 
+bigger which is easier to catch with your grab hand.
+
+
+	Panel placement	
+
+The Main panel can be placed on any side of the screen. Clicking 
+on the Panel placement icon will move the panel to the side of 
+the screen in a clockwise direction from bottom to left to top 
+to right and back to bottom again. This is useful when the mini-map 
+is open on the screen as the screen can get rather busy if all the 
+Panels are together at the bottom of the screen.
+
+
+
+	Options page	
+
+
+Although we think Baldies is the best game ever, there may be a 
+few times when you wish to put the volume down on the music so 
+you don't keep the whole family awake at night. Or, you may 
+want to increase the sound effect volume until you can hear 
+the sheep 'Baaaah'. Just click on the options page icon and 
+Holy cow, an options page will appear as if by magic. 
+
+
+Playing Baldies
+Just like in real life, in this universe you need Baldies 
+with different skills to be successful. Keeping a good balance 
+of Workers, Builders, Soldiers and Scientists will make your 
+world run smoothly. It's up to you to decide how many of each 
+Baldy type you need, but these guys are flexible...you can 
+change them with a simple click of the button. And you decide 
+how and when you want to attack the enemy, hopefully before 
+you're attacked! Press the Left mouse button to click on these icons.
+
+Moving and Changing Baldies
+As the flexible and eager to please types, Baldies are easy to 
+move and change. To move a Baldy (and most other items you'll 
+find), select the Hand icon on the Main panel. Then click and 
+hold the Left mouse button on the Baldy. You'll see it kick 
+its legs and fling its arms as you carry it to wherever you 
+want it to be. To put a Baldy in a house, just drop it on the 
+house. Open the house to see how many you have of each type. 
+Since they don't like crowds, Baldies you try to put in the 
+house will run out the front door when the house is full.
+
+If you need more of one type of Baldy, they can be changed 
+while walking around outside. Click on the Baldy type you want 
+on the Main panel (Worker, Builder, Soldier, Scientist). Then 
+move your pointer to the specific Baldy you want to change. The 
+cursor will change to a box. Press the Left mouse button to 
+change the Baldy to the new type. You can also go inside a 
+house and move Baldies from room to room to change their types 
+(see House Panel).Try to keep a good balance of Baldy types. 
+They all have important work to do!
+
+
+
+Housing			
+
+There are lots of different houses in Baldies, all of them 
+are useful and you should look to have at least a few 
+different houses on your Baldies landscape. There are however 
+three styles of houses which are of most use, these are:
+
+
+General housing
+Scientists labs
+Soldiers Barracks
+
+
+General houses are best at what they sound like 'General' 
+housing, this is where the Baldies breed best. A small 
+tip would be to invent the 'Rabbit breeding' invention 
+and drop it onto a general style of house and watch as 
+your Baldy population rockets upwards.
+
+
+Scientist labs are the first of the specialist houses 
+where the Baldies invent things quicker. The Science 
+lab is also where you can drop things on the roof and 
+the scientists will invent things based on that object. 
+For example if you drop a rabbit on the science lab you 
+can get the scientists to try inventions on the rabbit, 
+the same goes for the cow, fox and any animal. Dropping 
+rocks on the roof allows you to invent 'Rock rain' and 
+even dropping a real goldfish on the roof allows you to 
+make it rain fish, the best idea is to try things and 
+see if the scientists have any new inventions available 
+on their blackboard after you have dropped the object 
+on the lab.
+
+
+Soldiers Barracks are where the Soldiers create ammunition
+ for attacking the enemies with in the quickest manner. 
+The more Soldiers inside the Barrack the quicker they make 
+the ammo. The barracks is also a very difficult house to 
+overrun unless you send in lots of opposing Soldiers to 
+try and storm it.
+
+
+It is possible to build a few extensions onto the side 
+of the houses. When you have a medium house it's possible 
+to build a garage onto the side which will have the effect 
+of allowing the scientists to invent a car which can be 
+driven around the world by you knocking over Baldies.
+When the first Castle has been built you can also build a 
+Helicopter pad onto the roof, again having the effect of 
+allowing the scientists to invent a Helicopter, which 
+can then be used for deathly bombing missions.
+
+House Panel  
+
+When you click on the roof of one of your houses, the House 
+panel will open up which shows you a representation of the 
+number of  Baldies who are  inside the house and what they 
+are currently doing. 
+The rooms in the house are from bottom left going clockwise;
+
+Workers Room
+
+Builders Room
+
+Scientists Room
+
+Soldiers Room
+
+Workers room
+
+Workers will watch Television or exercise in their room, they 
+also breed in here but as this is a family game we are unable 
+to graphically depict this activity here. The more Workers 
+you have inside the house the quicker they will breed. Workers 
+are glad be indoors after a hard days graft as it revives 
+their little legs, ready for another day.
+
+Builders room
+
+
+Builders, whist inside the house they will repair the house 
+furiously if it is broken (as long as there are enough 
+builders) or they will attempt to build the house up to a 
+better building which the player has selected the blueprint 
+for and placed on the Blackboard. The bigger the house the 
+more Builders there needs to be inside to maintain, repair 
+and expand the building.
+
+
+By clicking on the blackboard in the builders room you are 
+provided with a choice of  houses which are available for 
+the builders to build the house into. At the top left of 
+the available house icon is a small box which is a particular 
+color depicting the style of house that the particular 
+structure is designed for. Red for Breeding/general, Green 
+for Soldiers/Barracks and White for Scientists/Labs. 
+The only time when you will not get choices by clicking 
+on the blackboard or will be unable to select a particular 
+house is when there is a red cross over the icon; this 
+means that their is no room for the builders to build the 
+house up to, this can be fixed by using the 'Spade' icon 
+to create more land, or use the grab hand to move any 
+debris which may stop the Builders from building.
+
+
+Scientists room
+
+Scientists busily build inventions and do research and 
+development in their little labs. Similar in function to 
+the builders room, the scientists have a blackboard which 
+you can click on to see which inventions are available for 
+inventing. As long as you have enough free slots on your 
+invention panel you can start to invent some cool inventions 
+straight away. Remember that you also need Science energy 
+(white bar) which is controlled by the number of Scientists 
+you have outside.
+Once again, Baldy law dictates that the more people you have 
+in the room, the quicker the job gets done. Make sure you have 
+Scientists outside of the house as you need them to deliver 
+the inventions to their destination.
+
+
+Soldiers Room
+
+Soldiers are needed inside the house as well as outside. 
+They have a number of functions one of the most important 
+is to protect the house against enemy attacks; it is 
+always harder to overrun a  house if it is filled with 
+soldiers,  who incidentally take around four times more 
+Baldies to overrun if inside the house. If the actual 
+house structure is a Barrack then the Soldiers will spend 
+their time making ammunition for there counterparts on 
+the outside. The more Soldiers and Barracks the more 
+bullets and grenades are available for attacks, making 
+the game hugely easier for your aggressive tactics to be 
+of use.
+
+
+
+
+Moving People inside the house
+
+
+It is possible to move Baldies from Job to Job inside the house 
+quickly and easily, all you need to do is move the cursor over 
+the door and press the button to kick the Baldies out into the 
+Hallway; once they are in the hall you can move the cursor 
+around and watch as the Baldies follow your cursor  looking 
+avidly to see what you want them to do. If you want to make 
+the Baldies become Scientists simply click on the Science 
+room and watch as the Baldies happily run into the room; 
+the same applies for Workers, Builders and Soldiers rooms  
+- just click on the door to kick them out into the hall 
+then onto a room and watch as the Baldies run into their 
+destination.
+
+
+To move people from the rooms outside, click on the room 
+doors in the same fashion as if you  were to move them 
+to another room. When the desired number of Baldies are 
+in the Hallway simply click on the front door and watch 
+as the Baldies stream outside into the sunlight. Just 
+make sure there are no traps which the enemy has placed 
+to catch you out
+
+
+Tree Panel
+
+Baldies love to play inside the trees, swinging on the branches. 
+Baldies inside the trees are rewarded by having their 
+energies boosted slightly making them more agile and eager 
+to get on with their terrestrial based tasks. 
+If you drop some Baldies onto a tree you can 'claim' 
+the tree in the same way as you can claim an empty house 
+by placing a Baldy inside it. If you wait outside the tree 
+for a period of time it's possible to see the Baldies jump 
+around the branches. Clicking on the tree will open it up 
+and reveal it's Bald population (as long as it's your tree), 
+you should see Baldies of all the different types swing on 
+the branches. Clicking on the Baldy should kick them outside 
+one by one in the same way as the house works. Baldies 
+fortunately don't breed inside the trees. This is 
+probably a good thing as they might fall out and 
+hurt themselves!
+
+Be careful though as Trees should be looked at in the 
+same way as houses which means look at strategically 
+using them whenever you can on the enemies land, but 
+look out for the tree snakes or earthquakes which will 
+shake the Baldies out of the trees making them vulnerable. 
+Trees can also be attacked from the air by flying soldiers 
+into attack.
+
+
+Inventions
+Now you've got your Workers working, your Builders building, 
+your Soldiers soldiering and your Scientists scientisting. 
+But how do you get rid of those hairy bad guys? Inventions 
+are the answer. Your Scientist Baldies are pretty smart (maybe 
+because there's no hair follicles to get in the way of their 
+brain waves), so there are lots of damaging, dangerous and 
+dastardly inventions you can use. Combine them for a powerful 
+one-two punch! (Note: Inventions may look slightly different 
+in each world.)
+
+Hazards  Use on land only, but be careful. They can hurt your 
+Baldies, too.
+
+Cannon 1	Whoever walks over the cannon will be launched 
+into the air; throwing but not killing them. Remember to select 
+a target when you use a cannon.
+Cannon 2 	Takes more energy from the target character who, 
+if damaged, could be killed.
+Cannon 3 	The big one. Anyone thrown by this will die.
+
+
+Electro 1 	When activated, it's fry time for whoever touches it.
+Electro 2 	Can zap again and again, lasts longer than Electro 1.
+Electro 3 	Longer lasting, multiple fry times.
+
+
+Landmine 1 	Will detonate when stepped on, killing the 
+unlucky fool who walked there.
+Landmine 2 	Stronger than Landmine 1, anyone in the immediate 
+area at the time of the blast is history.
+Landmine 3 	Even stronger than Landmine 2, killing everyone 
+around the mine. This will also damage houses and structures 
+in the area. (Hint: It will sometimes effect the landscape)
+
+
+Pit 1 		When a character walks over the pit it will 
+open and they'll fall in.
+Pit 2 		Bigger than Pit 1 so it activates easier 
+and more folks fall in.
+Pit 3 		The biggest pit, it can swallow a lot of 
+poor souls at one time.
+
+
+Popper	 	When someone walks over the popper they will be 
+filled full of air until they explode.
+
+Popper Field 	Put this on an open space so it will fill the 
+area with Poppers.
+
+
+Springboard 1	When stepped on, flings whoever steps on it 
+into the air.
+Springboard 2	Larger springboard, causes twice as much 
+damage as Springboard 1 upon landing.
+Springboard 3	Even larger springboard, will kill 
+character upon landing.
+
+
+Trap 1 		When stepped on, a set of sharp jaws 
+bite whoever stepped on it, causing pain but not death, 
+unless the character is already injured. It can be 
+activated more than once.
+Trap 2 		This one has a bigger and nastier bite! 
+It will kill and can be used again and again.
+Trap 3		Even bigger and has an extra special function.
+
+
+Balloon 		Attracts Angel winged Baldies 
+towards the Balloon, where they will land underneath it. 
+This is used for many things one being to divert enemy 
+scientists who are delivering offensive inventions and 
+if  the Balloon is over water it just makes the poor 
+Bald land in the water.
+
+
+Shark Bait	Drop the bait on the ground and it will 
+attract more land sharks or level equivalents into the
+area which will eat more people.
+
+
+Shark Repellent	If you notice more people than usual 
+are being eaten by landsharks, drop some repellent
+down on the land which should help quite by scaring off sharks.
+
+
+Teleporter 	Click on the Teleport icon then click where 
+you want to put the teleporter. Then, to place the second 
+pad (the receiver), click on the spot to which you want 
+quick access. If you do something else before placing 
+the second pad, just click on the Teleport icon again to 
+place the second pad.
+
+
+Happy Bunny	You can drop this on your house and all of the 
+workers will breed quicker for a short period of time.
+
+
+Sad Bunny	Has the opposite effect, this makes all the 
+workers breed slower. This is a good strategy to use 
+against the enemy, allowing you to breed more people up.
+
+
+Skunk bomb	Very smelly indeed, in fact so smelly 
+It will make most of the people inside a house run out 
+if one is dropped on the roof. This makes a good way 
+to kick people outside into a cunningly placed landmine field.
+
+
+Gas Mask	Gives all the people inside the house 
+protection against the skunk attacks.
+
+
+Mad Cow	Drop a Cow on the landscape and watch as the 
+Baldies are attracted to it, when there are 
+a fixed number of Baldies around the cow, it 'moos' 
+then explodes killing all around him.
+
+
+Snake		When you have an enemy annoying you by 
+placing a few token Baldies into the trees you 
+need a quick and easy way to get kick them out of 
+the tree. Try dropping the Snake invention into the tree.
+
+Acts of You
+These will have different effects depending on where they are used.
+
+
+Earthquake	If you are finding it tough attacking 
+the enemy who have taken refuge in the trees, just 
+create an earthquake and it will shake most of them 
+out of the trees and houses (be careful, it will shake 
+out your Baldies also). 
+
+
+Flamehead 1 	Click on this, then on an enemy to kill a 
+single character.
+Flamehead 2 	Will kill more enemies than Flamehead 1 
+and a larger area is effected.
+Flamehead 3 	Will kill more enemies in an even larger area.
+
+
+Storm 1		Click on the icon, then on the area where 
+you want a storm. The storm will begin and the rain will 
+come down on the entire land, but only those in the area 
+(one screen size) will be effected. Storm 1 will slowly 
+force any flying winged characters to the ground. 
+Storm 2 	Effected area is larger and the storm is 
+stronger. Those in flight will be grounded quicker . The 
+storm will occasionally flood small patches of land.
+Storm 3 	Effected area is greater. More of the 
+land will be flooded, anyone in flight will be grounded 
+and the helicopter will crash.
+
+
+Armageddon 	
+When the game has been going on for a while 
+and you just want to see who is ahead, just 
+drop this down and it will make the computer 'take over'. 
+The computer will kick every one from every team out from 
+their houses, turn them into angels, then Soldiers - fly 
+everyone to a newly created island in the middle of the 
+world where they can fight it out once and for all to 
+see who has won.
+
+Angel Cloud	A very powerful invention, which turns angels 
+from the opposing side into members of your 
+team. If placed properly this can be used to stop enemy air 
+based attacks, forcing them to take a land based approach 
+unless the enemy wants to give you his entire population
+
+
+Rock Rain	Drops Rocks from the sky which if a rock 
+lands next to a house it will stop it from being 
+able to grow. If a rock lands on a Baldies head he will 
+obviously get squashed.
+
+
+Vehicles
+
+
+Car		To build a car you must first build a house with 
+a garage (by selecting the appropriate icon in the Builder 
+room of a red house when this option becomes available to you). 
+You will 			then be able to invent a car. 
+Once invented, click the car icon on the Inventions panel, 
+then click on the garage. You are now motorized. Take 
+control of the car by clicking the Left mouse button on 
+it, release control by clicking the Left mouse button 
+again. (Hint: Hit and run situations are legal in 
+Baldies worlds.)
+
+
+Helicopter 	First, build a helipad when it appears 
+as an icon in the Builder room of a large house. 
+Then you will be able to invent the helicopter. Once 
+invented, click on the Helicopter icon 	in the Inventions 
+panel, then on the helipad. The helicopter will appear. 
+Take control by pressing the Left mouse button on the 
+helicopter in flight. Drop bombs by using the Right 
+mouse button. Bombs use energy from the Green Power Bar. 
+Release helicopter control by clicking the Left mouse button. 
+(This is one way to eliminate Baldies with angel wings.)
+
+
+Plus, anything you see may be useful. Try experimenting! 
+There are lots of things to find and use. Drop things you 
+find into various buildings and see what happens. When 
+in doubt, give it a try!
+
+
+
+Tips
+Inventions are not always a one-shot affair, for 
+instance electricity just loves the wet, so if it's 
+raining you know it's time for the sparks to start flying. 
+Most inventions can be combined, with up to four levels of 
+enhanced effect.
+
+If that pesky enemy is winging his bald crusaders across 
+the murky waters to your home patch why not mince them to 
+a pulpy mess with the rotor blades of your helicopters, 
+it's bound to make an impression.
+
+Try blowing up land mines near everything, there are 
+specials just waiting to be discovered. A good Baldy 
+commander knows that if its still blow it up, if it 
+moves burn it.
+
+Fish just love you to feed them goodies and they will 
+often reward you with themselves if your grab hand is fast enough.
+
+Question and Answer section
+
+Popular questions about Baldies
+
+How do I make the lights in the House go on?
+You don't, when it gets dark the Baldies will turn the lights 
+on for you.
+
+How do I get my Baldies to attack the enemies house?
+By dropping your team-coloured Shield onto an enemy house. 
+Baldy Soldiers are always attracted to their team shield by 
+moving the shield you can direct them where to go. The Shield 
+has an influence over the Soldiers of around two screens away. 
+Soldiers outside this area will wander around of there own accord.
+
+How Do I get the Soldiers to fire Bullets?
+By having a Barrack for storage and by putting Soldiers 
+inside the houses so they can manufacture the Bullets.
+
+What inventions can be used together?
+All Inventions can be used together, but some are 
+'designed' to work together, such as the Skunk and 
+a Popperfield or a Minefield. Drop the Skunk invention 
+onto the roof of an enemy house and watch as the 
+Enemies run outside and get filled with Helium gas 
+until their heads 'pop' off (as in 'popper' field!) 
+or explode into five pieces as they run over a landmine. 
+Another invention set is the 'Electro' inventions, these 
+electrocute the Baldies as they run over them. There are 
+three types of 'Electro' which only seem be different in 
+that they last longer, but if you deliberately make it 
+Rain with the rain storm invention, and a Baldy runs over
+ the 'Electro', as it's wet the Baldies in the near 
+Vicinity also get fatally shocked. The vicinity of 
+fatality is dependent to the stage of the 'Electro'. 
+
+
+How do the inventions get turned on in my invention-list?
+When the player starts the game they have the 'basic' set of 
+around five inventions, the actual number is dependent on 
+the Level. As the Baldies house grows in size, inventions 
+get added to the invention-list. Different types of House 
+also adds inventions to the list, for instance if you tell 
+the Baldies to build a garage onto the side of your house 
+then the 'Car' invention appears in the list. If you build 
+an army barrack this will add offensive weapons related to 
+an army barrack to the invention-list.
+To keep the game well paced, some of the more advanced 
+inventions are added to the game as it progresses through 
+the levels.
+
+What Vehicles can I invent?
+The main two are the Helicopter and the Car (in various forms). 
+The Helicopter can be taken on Bombing runs to take out the 
+enemies castle or Nursery(!), whilst another extremely 
+powerful use is the ability to fly through the Baldies as 
+they are flying from area to area, mincing the flying 
+scientists as they deliver inventions. The Car can be used 
+to mow the enemies down as they invade your land, as well 
+as enable you to play the 'Baldies GrandPrix' on a Network game. 
+
+Why do I want to make it rain?
+There are three stages of rain storm, the larger the 
+storm the more damage it does to the surrounding area 
+and to the houses in that area, eventually taking 
+chunks out of the land with the flooding which can 
+drown Baldies if they are standing on the land as it 
+disappears. If the rainstorm is only stage1, then it 
+is rare to see damage straight away but it does decrease 
+the Baldies energy, damages the house and stops the Houses 
+from allowing breeding inside them, as the Noise on the 
+roof distracts the Baldies inside.
+
+How do I make it rain fish?
+Catch a goldfish and drop it in a Science lab.
+
+What do the goldfish do?
+You can pick them up and feed them to your Baldies, 
+increasing their energy.
+
+Can I take inventions from one level to the next?
+Yes, but you can only take a stage3 invention over to the 
+next level. The invention is also 'Downgraded' to a stage1 
+invention as it gets carried over.
+
+Do I need to complete all 100 levels?
+No, there are secret warps which look like large rocks in 
+the ground, you can blow these up in the ground with a 
+Stage3 landmine. The Baldies can then be dropped or simply 
+run into the warp which will turn on a level further into 
+the game such as Level32. When starting Level32 you will 
+start with the 'Basic' number of Baldies plus the number 
+of Baldies that were warped from the previous level.
+
+Are there any hidden or Bonus  levels?
+Yes, absolutely loads. As you progress through the game, 
+the bonus and Hidden levels will 'appear' on the level 
+selection screen. Some of the hidden levels have hidden 
+inventions which can be carried over to the next level. 
+Other levels are Bonus levels where you are asked to complete 
+a certain task which depending on the outcome will give you 
+extra Baldies on the next level you play. The Bonus levels range 
+from puzzles to tasks which could be along the lines of 'Knock 
+over as many Baldies as you can with the Car in 1 minute', 
+this bonus level will give you one Baldy for every five you 
+successfully run into the dirt! 'Save as many Baldies as 
+possible from the Minefield in 30 seconds", the survivors will 
+then be carried over giving you a helping handful of Baldies 
+for the next stage.
+
+Where is the Helicopter?
+You must first build a Helipad onto the roof of a stage1 Castle 
+before the Helicopter invention will be added to the invention-list.
+
+Why can I no longer drop Bombs on people from the Helicopter?
+Because you either have no 'Soldier' energy on your panel 
+(Green bar) or you have not created a Barrack allowing 
+Bombs and Bullets to become active.
+
+What do the other animals do?
+All the animals have other purposes to them. Nearly all the 
+animals can be used in some way by the Scientists for 
+experiments, allowing them to concoct some wicked inventions 
+such as the Exploding Cow which attracts the enemies towards 
+it before the cow explodes, spreading itself over the map 
+and killing the enemy Baldies (or your own) at the same 
+time. If you or the enemy unknowingly picks up a cow 
+that has been 'tampered' with and drop it in your house 
+for inventing on, the Cow will explode inside the house, 
+unluckily killing all the inhabitants - this is an 
+awesome strategy on a Network game, it really annoys 
+the other players.
+Rabbits and Fox's are used to increase and decrease 
+population control, Sheep are used for 'Special' purposes, 
+Skunks are used to chase people out houses, hopefully into a 
+previously planted minefield or trap. Fish, Dolphins, Kangaroos, 
+Snakes and all the other animal fodder can be used in some way 
+or other. Most animals can also be dropped onto traps and 
+mines allowing the player to 'detonate' them.
+
+How do I actually experiment on the animals?
+You need to build a Science lab so that the Scientists have 
+enough room for the Animals. 
+
+Is it true that I can really set the Baldies on Fire?
+Yes, with the singular Firebomb  invention, and the 
+Mass-firebomb invention which takes out an area of Baldies 
+at the one time.
+
+How do I make the Baldies urinate?
+You don't, when the Baldies need to relieve their Bladders 
+they will do it themselves. The best place to catch them 
+is on a small Island with a large house such as the Castle 
+placed directly in the middle. The Baldies will then when 
+needed do their thing against the side of the house or in 
+the Castle's pond.
+
+Where are the 'Wings' and 'Shovel' on the panel?
+The Shovel will appear on your panel when you have enough 
+houses and when you have enough Energy. The Angel wings 
+icon will appear once you have a combination of enough Energy, 
+Houses and Baldies.
+
+
+
+
+Troubleshooting
+
+Baldies will not install properly
+Make sure you have enough free hard disk space. Baldies requires 
+4MB of hard disk space to install.
+
+Game will not run
+Win95
+* To run Baldies for Windows95 you must have Direct X version 2. 
+The included install program contains Direct X 2, and can be 
+used to install it to your system.
+* Direct X sometimes requires the latest drivers from your 
+video card manufacturers. You should contact your video card 
+manufacturer for any updates they may have for your video drivers.
+* Make sure the Baldies CD-ROM is in the drive. Baldies 
+will not run without the CD.
+
+Sound problems or no sound
+* Make sure your speakers are connected and have power. 
+ 
+ DOS
+* Check your sound setup, if you have the wrong sound 
+card, or sound card information Baldies could  have 
+problems running. Consult your sound card manual if you 
+have questions about the configuration (such as IRQ number).
+
+Sound card not listed in setup
+Your sound card must be on the list in the setup program to 
+ensure that it works with Baldies. 
+
+No mouse control in game
+Make sure you have a mouse driver loaded. If you are not sure how 
+to do this, consult the documentation supplied with your mouse.
+
+
+Network Troubleshooting
+
+The network game will not run
+Win95
+To run a network game you must use the Start Baldies on Network 
+icon, not the Single player icon. You must also be using an IPX 
+compatible network with all appropriate drivers installed. 
+If you are unsure of your network configuration, contact your 
+network administrator.
+
+Slow response in network game
+* The amount of traffic on your network will affect the speed 
+of Baldies network games. The only way to solve this problem 
+is to wait until fewer users are on the network.
+* Baldies will default to the speed of the slowest computer 
+in the game during network play. Each player should have at 
+least 8 MB of RAM for optimum play. If the computer you are 
+using is one of the faster systems, you will notice a 
+performance decrease when playing a network game against a 
+slower system. The best idea is to have all players on 
+similar systems. 
+
+Game crashes or gives an error message
+This could be caused by network traffic. Baldies relies on 
+information sent to arrive in a timely manner. If network 
+traffic causes the information to be slowed or not delivered, 
+the game will get out of sync. 
+
+
+
+
+
+
