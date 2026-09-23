@@ -1,0 +1,14 @@
+# Agent Execution Protocol
+
+## Feature Implementation
+- Always break tasks into an explicit checklist before writing code.
+- Ensure type-safety, handle zero/null edge cases, and keep diffs localized.
+- Run tests or builds automatically before marking a subtask complete.
+
+## Reverse Engineering & Auditing
+- Map execution paths, hook points, and state transitions explicitly before proposing changes.
+- Trace memory layout, data models, or external contract interfaces and summarize them in `docs/`.
+
+## Code Review
+- Ensure modified logic aligns with neighboring architectural patterns.
+- Reject unhandled async paths, implicit type coercion, or missing error boundaries.
