@@ -1,4 +1,5 @@
 #include "bal_midi.h"
+#include "asset_path.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,19 +10,8 @@
 
 static bool g_midi_playing = false;
 
-static bool resolve_filepath(const char *subpath, char *out_full_path, size_t out_size) {
-    const char *prefixes[] = { "", "../", "../../", "I:/Baldies/", NULL };
-    for (int i = 0; prefixes[i] != NULL; i++) {
-        char test_path[260];
-        snprintf(test_path, sizeof(test_path), "%s%s", prefixes[i], subpath);
-        DWORD attr = GetFileAttributesA(test_path);
-        if (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY)) {
-            GetFullPathNameA(test_path, (DWORD)out_size, out_full_path, NULL);
-            return true;
-        }
-    }
-    return false;
-}
+#define resolve_filepath asset_resolve_path
+
 
 bool bal_midi_play(const char *filepath, bool loop) {
     bal_midi_stop();

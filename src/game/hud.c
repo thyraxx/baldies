@@ -1,4 +1,5 @@
 #include "hud.h"
+#include "assets/asset_path.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,24 +9,19 @@ bool hud_init(hud_resources_t *hud_res) {
     hud_res->hpan_data = NULL;
     hud_res->hpan_size = 0;
 
-    const char *prefixes[] = { "", "../", "../../", "I:/Baldies/", NULL };
-    for (int i = 0; prefixes[i] != NULL; i++) {
-        char path[260];
-        snprintf(path, sizeof(path), "%sBALS/HPAN640.BAL", prefixes[i]);
-        FILE *f = fopen(path, "rb");
-        if (f) {
-            fseek(f, 0, SEEK_END);
-            long sz = ftell(f);
-            fseek(f, 0, SEEK_SET);
-            if (sz > 0) {
-                hud_res->hpan_data = (uint8_t*)malloc(sz);
-                if (hud_res->hpan_data) {
-                    hud_res->hpan_size = (uint32_t)fread(hud_res->hpan_data, 1, sz, f);
-                }
+    FILE *f = asset_open_file("BALS/HPAN640.BAL", "rb");
+    if (f) {
+        fseek(f, 0, SEEK_END);
+        long sz = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        if (sz > 0) {
+            hud_res->hpan_data = (uint8_t*)malloc(sz);
+            if (hud_res->hpan_data) {
+                hud_res->hpan_size = (uint32_t)fread(hud_res->hpan_data, 1, sz, f);
             }
-            fclose(f);
-            if (hud_res->hpan_data) return true;
         }
+        fclose(f);
+        if (hud_res->hpan_data) return true;
     }
     return false;
 }

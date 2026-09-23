@@ -31,7 +31,7 @@ if not exist obj mkdir obj
 set "CFLAGS=/nologo /O2 /W3 /MD /utf-8 /D_CRT_SECURE_NO_WARNINGS /Isrc"
 set "LIBS=gdi32.lib user32.lib winmm.lib shell32.lib"
 
-set "ASSET_SRCS=src\assets\bal_palette.c src\assets\bal_tiles.c src\assets\bal_map.c src\assets\bal_sfx.c src\assets\bal_midi.c"
+set "ASSET_SRCS=src\assets\asset_path.c src\assets\bal_palette.c src\assets\bal_tiles.c src\assets\bal_map.c src\assets\bal_sfx.c src\assets\bal_midi.c"
 set "RENDER_SRCS=src\render\surface.c src\render\map_renderer.c"
 set "GAME_SRCS=src\game\camera.c src\game\hud.c src\game\entities.c src\game\house.c src\game\game_loop.c"
 set "PLATFORM_SRCS=src\platform\platform_win32.c"
@@ -50,10 +50,13 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
+copy /y bin\baldies_c.exe baldies_c.exe >nul 2>&1
+copy /y bin\baldies_test.exe baldies_test.exe >nul 2>&1
+
 echo.
 echo ======================================================
 echo [SUCCESS] Compilation complete!
-echo   - Unit Tests: bin\baldies_test.exe
-echo   - Game Engine: bin\baldies_c.exe
+echo   - Unit Tests: baldies_test.exe (and bin\baldies_test.exe)
+echo   - Game Engine: baldies_c.exe    (and bin\baldies_c.exe)
 echo ======================================================
 exit /b 0

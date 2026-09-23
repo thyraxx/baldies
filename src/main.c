@@ -5,8 +5,11 @@
 #include "platform/platform.h"
 #include "render/surface.h"
 #include "game/game_loop.h"
+#include "assets/asset_path.h"
 
 int main(int argc, char **argv) {
+    asset_system_init();
+
     int win_w = 1280;
     int win_h = 960;
     bool fullscreen = false;

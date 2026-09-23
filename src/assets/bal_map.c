@@ -1,19 +1,11 @@
 #include "bal_map.h"
+#include "asset_path.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static FILE* open_asset_file(const char *subpath) {
-    char path_buf[256];
-    const char *prefixes[] = { "", "../", "../../", "I:/Baldies/", NULL };
+#define open_asset_file(p) asset_open_file(p, "rb")
 
-    for (int i = 0; prefixes[i] != NULL; i++) {
-        snprintf(path_buf, sizeof(path_buf), "%s%s", prefixes[i], subpath);
-        FILE *f = fopen(path_buf, "rb");
-        if (f) return f;
-    }
-    return NULL;
-}
 
 bool bal_map_load(uint32_t level_num, bal_map_t *out_map) {
     if (!out_map) return false;
