@@ -3,8 +3,8 @@
 Baldies Resolution Selector Utility
 Allows instant switching between modern resolution presets or custom resolutions.
 Configures both ddraw.ini (window wrapper) and baldies.exe (internal engine viewport,
-DirectDraw surface, camera, tile bounds, and clipping rects) so that the actual
-in-game view scales seamlessly to match the chosen resolution.
+offscreen buffers, DirectDraw surface, camera, tile bounds, and clipping rects) so that the actual
+in-game view scales seamlessly to fill the chosen window resolution.
 """
 
 import os
@@ -32,8 +32,8 @@ PRESETS = {
 
 def patch_executable_resolution(exe_path, width, height):
     """
-    Patches a Baldies executable so its internal DirectDraw surface, viewport,
-    camera bounding box, clipping rectangles, and buffer pitch dynamically match (width, height).
+    Patches a Baldies executable so its internal DirectDraw surface, offscreen buffers,
+    viewport, camera bounding box, clipping rectangles, and buffer pitch dynamically match (width, height).
     """
     if not os.path.exists(exe_path):
         return False
@@ -95,6 +95,25 @@ def patch_executable_resolution(exe_path, width, height):
         data[0x017D30:0x017D32] = w_u16          # VA 0x00418930: ClipRight
         data[0x017D39:0x017D3B] = h_u16          # VA 0x00418939: ClipBottom
 
+        # 4. Critical Offscreen Buffer Allocations & Full Screen Clears
+        # Prevents the game view from being trapped in a 640x480 box / 1/4 window
+        data[0x007BDE:0x007BE2] = h_u32          # VA 0x004087DD: ClearRect height
+        data[0x007BE3:0x007BE7] = w_u32          # VA 0x004087E2: ClearRect width
+        data[0x0144E0:0x0144E4] = h_u32          # VA 0x004150DF: Offscreen World Buffer [0x00461DC0] height
+        data[0x0144E5:0x0144E9] = w_u32          # VA 0x004150E4: Offscreen World Buffer [0x00461DC0] width
+        data[0x014988:0x01498C] = h_u32          # VA 0x00415587: Screen Buffer [0x004614FC] height
+        data[0x01498D:0x014991] = w_u32          # VA 0x0041558C: Screen Buffer [0x004614FC] width
+        data[0x01504D:0x015051] = h_u32          # VA 0x00415C4C: ClearRect height
+        data[0x015052:0x015056] = w_u32          # VA 0x00415C51: ClearRect width
+        data[0x044913:0x044917] = h_u32          # VA 0x00445512: ClearRect height
+        data[0x044918:0x04491C] = w_u32          # VA 0x00445517: ClearRect width
+        data[0x04492E:0x044932] = h_u32          # VA 0x0044552D: ClearRect height
+        data[0x044933:0x044937] = w_u32          # VA 0x00445532: ClearRect width
+        data[0x044E9D:0x044EA1] = h_u32          # VA 0x00445A9C: ClearRect height
+        data[0x044EA2:0x044EA6] = w_u32          # VA 0x00445AA1: ClearRect width
+        data[0x044EB8:0x044EBC] = h_u32          # VA 0x00445AB7: ClearRect height
+        data[0x044EBD:0x044EC1] = w_u32          # VA 0x00445ABC: ClearRect width
+
         with open(exe_path, "wb") as f:
             f.write(data)
         return True
@@ -143,7 +162,7 @@ def apply_resolution(width, height, fullscreen=False):
     mode_str = "Borderless Fullscreen" if fullscreen else "Windowed"
     print(f"\n[OK] Configured {width}x{height} ({mode_str}):")
     print(f"     - ddraw.ini updated")
-    print(f"     - In-game viewport & camera engine patched ({patched_count} executable(s))")
+    print(f"     - In-game offscreen buffers, viewport & camera engine patched ({patched_count} executable(s))")
     return True
 
 def launch_game():
