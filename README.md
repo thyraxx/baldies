@@ -82,8 +82,47 @@ You can easily customize graphics, shaders, and game speed:
 
 ---
 
+## Modern C Engine Rebuild (Open-Source Native Port)
+
+A complete, native re-implementation of *Baldies* written from scratch in clean modern C (C99/C11), eliminating legacy DirectDraw and 16/32-bit Watcom engine limits.
+
+### Features
+- **Zero External Dependencies**: Built with native Win32 + GDI + WinMM; compiles out-of-the-box on modern Windows 10 & 11 without requiring external SDKs or DLLs.
+- **Genuine Arbitrary Resolutions**: Smoothly expands the visible game world and camera viewport to any modern resolution (1024x768, 1280x960, 1920x1080 widescreen, 4K) without memory crashes or letterbox stretching.
+- **Authentic Asset Loading**: Directly decodes original 1995 assets:
+  - 256-color palettes (`.BAL` 768-byte RGB format)
+  - 32x32 terrain tiles (`LEV%dBLK.BAL`)
+  - All 129 levels and map grids (`LVL/LEVEL%03d.BAL`, `LVL/MAP%03d.BAL`)
+  - 68 embedded sound effect WAVs extracted from executable resources (`SD001`-`SD068`)
+  - Full MIDI soundtrack playback via Windows sequencer (`LEV%dMIDI.BAL`)
+- **Dual-Loop Architecture**: Fixed 30 TPS simulation tick decoupled from a fluid 60 FPS presentation loop.
+- **Interactive Mini-Map & HUD**: Real-time terrain overview with viewport indicator and full role management.
+
+### Compiling & Running
+1. **Compile**: Double-click **`build.bat`** (auto-detects Visual Studio 2019 / MSVC x64 build tools).
+2. **Run Tests**: Execute **`bin\baldies_test.exe`** to verify all asset decoders.
+3. **Launch Game Engine**:
+   ```cmd
+   bin\baldies_c.exe [width] [height] [level]
+   ```
+   *Examples:*
+   - `bin\baldies_c.exe 1280 960 1` (Standard HD windowed, Level 1)
+   - `bin\baldies_c.exe 1920 1080 1` (Full 1080p widescreen, showing 3x more map area!)
+
+### Modern C Engine Controls
+- **Arrow Keys / WASD**: Pan camera across the map
+- **Mouse Screen Edge**: Pan camera by moving cursor to window border
+- **Left Click on Baldie**: Select unit and assign role / issue movement order
+- **Keys 1 - 4**: Select role (1: Worker / Red, 2: Builder / Blue, 3: Scientist / White, 4: Soldier / Green)
+- **Key M**: Toggle interactive mini-map
+- **Alt + Enter**: Toggle borderless fullscreen
+- **Escape**: Exit cleanly
+
+---
+
 ## Project Structure & Architecture
 
 For detailed reverse-engineering documentation, disassembly addresses, memory maps, and asset file formats, see:
 - **[`PROJECT_MAP.md`](PROJECT_MAP.md)**: Detailed technical map of entry points, component structures, data flow, and `.BAL` file specifications.
 - **[`BALDMAN2.TXT`](BALDMAN2.TXT)**: The original Windows 95 game manual.
+
