@@ -7,6 +7,7 @@
 #include "assets/bal_map.h"
 #include "assets/bal_sfx.h"
 #include "assets/bal_midi.h"
+#include "assets/asset_path.h"
 
 static int g_tests_run = 0;
 static int g_tests_passed = 0;
@@ -22,6 +23,8 @@ static int g_tests_passed = 0;
 } while(0)
 
 int main(void) {
+    asset_system_init();
+
     printf("======================================================\n");
     printf("        BALDIES C ENGINE - ASSET DECODER TESTS        \n");
     printf("======================================================\n\n");

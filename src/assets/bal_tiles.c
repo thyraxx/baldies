@@ -1,4 +1,5 @@
 #include "bal_tiles.h"
+#include "asset_path.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,7 +11,7 @@ bool bal_tileset_load(const char *filepath, bal_tileset_t *out_tileset) {
     out_tileset->data = NULL;
     out_tileset->num_tiles = 0;
 
-    FILE *f = fopen(filepath, "rb");
+    FILE *f = asset_open_file(filepath, "rb");
     if (!f) {
         return false;
     }

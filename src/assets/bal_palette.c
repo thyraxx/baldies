@@ -33,12 +33,14 @@ bool bal_palette_load_from_memory(const uint8_t *data, size_t size, bal_palette_
     return true;
 }
 
+#include "asset_path.h"
+
 bool bal_palette_load(const char *filepath, bal_palette_t *out_palette) {
     if (!filepath || !out_palette) {
         return false;
     }
 
-    FILE *f = fopen(filepath, "rb");
+    FILE *f = asset_open_file(filepath, "rb");
     if (!f) {
         return false;
     }

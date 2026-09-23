@@ -23,7 +23,10 @@ __pycache__/
 build/
 bin/
 obj/
+baldies_c.exe
+baldies_test.exe
 *.obj
 *.pdb
 *.ilk
+
 

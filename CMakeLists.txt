@@ -12,6 +12,7 @@ endif()
 include_directories(src)
 
 set(ASSET_SOURCES
+    src/assets/asset_path.c
     src/assets/bal_palette.c
     src/assets/bal_tiles.c
     src/assets/bal_map.c

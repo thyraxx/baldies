@@ -1,4 +1,5 @@
 #include "bal_sfx.h"
+#include "asset_path.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,17 +12,17 @@ static HMODULE g_res_module = NULL;
 static bal_sound_t g_sounds[MAX_SFX_COUNT + 1];
 
 bool bal_sfx_init(const char *exe_path) {
-    char path_buf[256];
-    const char *prefixes[] = { "", "../", "../../", "I:/Baldies/", NULL };
-
     if (!exe_path) {
         exe_path = "baldies.exe";
     }
 
-    for (int p = 0; prefixes[p] != NULL; p++) {
-        snprintf(path_buf, sizeof(path_buf), "%s%s", prefixes[p], exe_path);
-        g_res_module = LoadLibraryExA(path_buf, NULL, LOAD_LIBRARY_AS_DATAFILE);
-        if (g_res_module) break;
+    char resolved[MAX_PATH];
+    if (asset_resolve_path(exe_path, resolved, sizeof(resolved))) {
+        g_res_module = LoadLibraryExA(resolved, NULL, LOAD_LIBRARY_AS_DATAFILE);
+    }
+
+    if (!g_res_module) {
+        g_res_module = LoadLibraryExA(exe_path, NULL, LOAD_LIBRARY_AS_DATAFILE);
     }
 
     if (!g_res_module) {
