@@ -210,13 +210,17 @@ Unlike simple wrapper-level pixel upscaling, the engine itself has been patched 
 ### Key Engine Binary Patches
 1. **Dynamic Surface Pitch (`0x00416FE9` / Raw `0x0163E7`)**:
    Replaced hardcoded `mov [0x004514AC], 640` with `mov eax, [0x0045C01C]; mov [0x004514AC], eax` (10 bytes exact), dynamically synchronizing the assembly drawing pitch with DirectDraw.
-2. **Display Mode & Surface Allocation (`0x00407355` / `0x00407411`)**:
+2. **Display Mode & DirectDraw Allocation (`0x00407355` / `0x00407411`)**:
    Passes target `Width` and `Height` to `IDirectDraw::SetDisplayMode` and `IDirectDraw::CreateSurface`.
-3. **Camera Traversal & Tile Visibility Loop (`0x0040E948` - `0x0040EA10`)**:
+3. **Offscreen World & Screen Buffer Allocations (`0x004150DF` / `0x00415587`)**:
+   Passes target `Width` and `Height` to the internal buffer allocator (`0x00401010`) for `[0x00461DC0]` (offscreen world rendering buffer) and `[0x004614FC]` (screen composition buffer). Prevents the in-game canvas from being trapped in a 640x480 sub-region (1/4 window size).
+4. **Full Screen Clears (`0x004087DD`, `0x00415C4C`, `0x00445512`, `0x0044552D`, `0x00445A9C`, `0x00445AB7`)**:
+   Updates all `ClearRect` calls to span the full `Width` and `Height`, preventing ghost trails and black unpainted zones.
+5. **Camera Traversal & Tile Visibility Loop (`0x0040E948` - `0x0040EA10`)**:
    Iterates across `[0x00461644]` and `[0x00461646]`, rendering tiles across the expanded field of view.
-4. **Bottom HUD Alignment & Clipping (`0x00407103`, `0x00416FF8`)**:
+6. **Bottom HUD Alignment & Clipping (`0x00407103`, `0x00416FF8`)**:
    Sets screen bottom boundary to `Height - 32`, cleanly anchoring the bottom HUD panel to the bottom edge of the window.
-5. **Clipping Bounds (`0x0041719A`, `0x00417208`, `0x0041723C`, `0x00418930`)**:
+7. **Clipping Bounds (`0x0041719A`, `0x00417208`, `0x0041723C`, `0x00418930`)**:
    Updates 2D clipping rectangles to match target `Width` and `Height`, allowing world rendering to span the entire screen.
 
 ---

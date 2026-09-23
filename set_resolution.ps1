@@ -3,7 +3,7 @@
     Baldies Resolution & In-Game Viewport Selector Utility (PowerShell)
 .DESCRIPTION
     Configures both ddraw.ini and baldies.exe so that the game's internal camera,
-    viewport, DirectDraw surface, and tile rendering dynamically scale to match the window size.
+    viewport, offscreen buffers, DirectDraw surface, and tile rendering dynamically scale to match the window size.
 #>
 
 param (
@@ -100,6 +100,25 @@ function Patch-ExecutableResolution([string]$exePath, [int]$W, [int]$H) {
         [System.Array]::Copy($wB, 0, $bytes, 0x017D30, 2)
         [System.Array]::Copy($hB, 0, $bytes, 0x017D39, 2)
 
+        # 4. Critical Offscreen Buffer Allocations & Full Screen Clears
+        # Prevents the game view from being trapped in a 640x480 box / 1/4 window
+        [System.Array]::Copy($h32B, 0, $bytes, 0x007BDE, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x007BE3, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x0144E0, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x0144E5, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x014988, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x01498D, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x01504D, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x015052, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x044913, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x044918, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x04492E, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x044933, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x044E9D, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x044EA2, 4)
+        [System.Array]::Copy($h32B, 0, $bytes, 0x044EB8, 4)
+        [System.Array]::Copy($w32B, 0, $bytes, 0x044EBD, 4)
+
         [System.IO.File]::WriteAllBytes($exePath, $bytes)
         return $true
     } catch {
@@ -141,7 +160,7 @@ function Apply-Resolution([int]$W, [int]$H, [bool]$FS) {
     $modeStr = if ($FS) { "Borderless Fullscreen" } else { "Windowed" }
     Write-Host "`n[OK] Configured ${W}x${H} ($modeStr):" -ForegroundColor Green
     Write-Host "     - ddraw.ini updated"
-    Write-Host "     - In-game viewport & camera engine patched ($patched executable(s))`n"
+    Write-Host "     - In-game offscreen buffers, viewport & camera engine patched ($patched executable(s))`n"
     return $true
 }
 
