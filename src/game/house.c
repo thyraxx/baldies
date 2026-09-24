@@ -41,9 +41,9 @@ void house_update_all(house_manager_t *mgr, entity_manager_t *entity_mgr) {
             int breed_threshold = (workers >= 2) ? 150 : 300;
             if (h->breed_timer >= breed_threshold) {
                 h->breed_timer = 0;
-                // Birth a new Baldie!
+                // Birth a new Baldie out the front door!
                 float spawn_x = (float)(h->world_x + 16);
-                float spawn_y = (float)(h->world_y + 40);
+                float spawn_y = (float)(h->world_y + 48);
                 entity_spawn(entity_mgr, h->team, ROLE_WORKER, spawn_x, spawn_y);
             }
         }
@@ -60,7 +60,6 @@ void house_render_all(const house_manager_t *mgr, surface_t *dest, int camera_x,
         int sx = h->world_x - camera_x;
         int sy = h->world_y - camera_y;
 
-
         int house_w = 48;
         int house_h = 48;
 
@@ -68,26 +67,19 @@ void house_render_all(const house_manager_t *mgr, surface_t *dest, int camera_x,
             continue;
         }
 
-        // Draw house base
-        uint32_t wall_color = (h->team == TEAM_PLAYER) ? 0xFF8B5A2B : 0xFF553311;
-        uint32_t roof_color = (h->team == TEAM_PLAYER) ? 0xFFB22222 : 0xFF4A4A4A;
+        // Room occupancy flags floating above the cottage roof (only when units are inside)
+        int total_inside = h->rooms[0] + h->rooms[1] + h->rooms[2] + h->rooms[3];
+        if (total_inside > 0) {
+            // Semi-transparent badge background
+            surface_fill_rect(dest, sx + 4, sy - 8, 40, 9, 0xCC111111);
+            surface_draw_rect(dest, sx + 4, sy - 8, 40, 9, 0xFFDAA520);
 
-        // Walls
-        surface_fill_rect(dest, sx, sy + 16, house_w, house_h - 16, wall_color);
-        surface_draw_rect(dest, sx, sy + 16, house_w, house_h - 16, 0xFF000000);
-
-        // Roof
-        surface_fill_rect(dest, sx - 4, sy, house_w + 8, 18, roof_color);
-        surface_draw_rect(dest, sx - 4, sy, house_w + 8, 18, 0xFF000000);
-
-        // Door
-        surface_fill_rect(dest, sx + 18, sy + 28, 12, 20, 0xFF3D2314);
-        surface_draw_rect(dest, sx + 18, sy + 28, 12, 20, 0xFF000000);
-
-        // Room occupancy flags (4 small colored squares above door)
-        if (h->rooms[0] > 0) surface_fill_rect(dest, sx + 4,  sy + 20, 6, 6, 0xFFFF2222); // Red
-        if (h->rooms[1] > 0) surface_fill_rect(dest, sx + 12, sy + 20, 6, 6, 0xFF2266FF); // Blue
-        if (h->rooms[2] > 0) surface_fill_rect(dest, sx + 30, sy + 20, 6, 6, 0xFFEEEEEE); // White
-        if (h->rooms[3] > 0) surface_fill_rect(dest, sx + 38, sy + 20, 6, 6, 0xFF22CC22); // Green
+            // 4 colored indicator squares: Red (Workers), Blue (Builders), White (Scientists), Green (Soldiers)
+            if (h->rooms[0] > 0) surface_fill_rect(dest, sx + 7,  sy - 6, 6, 5, 0xFFFF2222);
+            if (h->rooms[1] > 0) surface_fill_rect(dest, sx + 16, sy - 6, 6, 5, 0xFF3388FF);
+            if (h->rooms[2] > 0) surface_fill_rect(dest, sx + 25, sy - 6, 6, 5, 0xFFFFFFFF);
+            if (h->rooms[3] > 0) surface_fill_rect(dest, sx + 34, sy - 6, 6, 5, 0xFF33DD33);
+        }
     }
 }
+

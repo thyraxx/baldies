@@ -62,6 +62,11 @@ int main(void) {
     uint16_t border_tile = bal_map_get_tile(&map, 0, 0);
     TEST_ASSERT(border_tile == 340, "Border tile index is 340 (0x0154)");
     TEST_ASSERT(bal_tileset_get_tile(&tileset, border_tile) != NULL, "Border tile 340 is valid in 1280 tileset");
+    TEST_ASSERT(map.player_base_x == 912 && map.player_base_y == 704, "Detected player cottage at (912, 704)");
+    TEST_ASSERT(bal_map_is_walkable(&map, &tileset, 928.0f, 740.0f), "Island grass (928, 740) is walkable");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 32.0f, 32.0f), "Ocean water (32, 32) is not walkable");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, -10.0f, 50.0f), "Out-of-bounds coordinates are not walkable");
+
 
     // 4. Sprites Test
     printf("\nTesting Baldie Sprites Loading:\n");

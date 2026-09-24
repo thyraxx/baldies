@@ -33,7 +33,7 @@ baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t 
     return NULL;
 }
 
-void entity_update_all(entity_manager_t *mgr) {
+void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset) {
     if (!mgr) return;
 
     for (int i = 0; i < MAX_BALDIES; i++) {
@@ -51,9 +51,29 @@ void entity_update_all(entity_manager_t *mgr) {
 
         if (dist > 2.0f) {
             b->state = STATE_WALKING;
-            float speed = 2.0f;
-            b->x += (dx / dist) * speed;
-            b->y += (dy / dist) * speed;
+            float speed = 1.5f;
+            float step_x = (dx / dist) * speed;
+            float step_y = (dy / dist) * speed;
+
+            float next_x = b->x + step_x;
+            float next_y = b->y + step_y;
+
+            // Collision check with water and map boundaries
+            if (!map || bal_map_is_walkable(map, tileset, next_x, next_y)) {
+                b->x = next_x;
+                b->y = next_y;
+            } else if (bal_map_is_walkable(map, tileset, next_x, b->y)) {
+                // Slide along X axis
+                b->x = next_x;
+            } else if (bal_map_is_walkable(map, tileset, b->x, next_y)) {
+                // Slide along Y axis
+                b->y = next_y;
+            } else {
+                // Blocked by water / border: stop walking
+                b->target_x = b->x;
+                b->target_y = b->y;
+                b->state = STATE_IDLE;
+            }
 
             b->anim_timer++;
             if (b->anim_timer >= 4) {
@@ -62,16 +82,21 @@ void entity_update_all(entity_manager_t *mgr) {
             }
         } else {
             b->state = STATE_IDLE;
-            // Idle wander AI: occasionally pick a nearby point
+            // Idle wander AI: occasionally pick a nearby walkable point on land
             if ((rand() % 120) == 0) {
-                float ox = (float)((rand() % 96) - 48);
-                float oy = (float)((rand() % 96) - 48);
-                b->target_x = b->x + ox;
-                b->target_y = b->y + oy;
+                float ox = (float)((rand() % 48) - 24);
+                float oy = (float)((rand() % 48) - 24);
+                float cand_x = b->x + ox;
+                float cand_y = b->y + oy;
+                if (!map || bal_map_is_walkable(map, tileset, cand_x, cand_y)) {
+                    b->target_x = cand_x;
+                    b->target_y = cand_y;
+                }
             }
         }
     }
 }
+
 
 void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites) {
     if (!mgr || !dest) return;
