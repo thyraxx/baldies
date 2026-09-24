@@ -104,12 +104,21 @@ bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h)
         player_base->rooms[0] = 2; // 2 breeding workers inside
     }
 
-    // Spawn initial player Baldies on the lawn outside the cottage
+    // Spawn initial player Baldies spread out on the lawn outside the cottage
+    static const int p_spawn_offsets[4][2] = {
+        {-24, 48},
+        { 22, 52},
+        {-10, 68},
+        { 16, 66}
+    };
     for (int i = 0; i < 4; i++) {
-        float sx = (float)(p_base_x - 12 + (i * 18));
-        float sy = (float)(p_base_y + 54);
+        float sx = (float)(p_base_x + p_spawn_offsets[i][0]);
+        float sy = (float)(p_base_y + p_spawn_offsets[i][1]);
         baldie_role_t role = (baldie_role_t)(i % 4);
-        entity_spawn(&game->entity_mgr, TEAM_PLAYER, role, sx, sy);
+        baldie_t *b = entity_spawn(&game->entity_mgr, TEAM_PLAYER, role, sx, sy);
+        if (b) {
+            b->facing = BALDIE_DIR_S;
+        }
     }
 
     // Spawn enemy base & Hairies at authentic enemy island position
@@ -117,8 +126,18 @@ bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h)
     int e_base_y = (int)game->map.enemy_base_y;
 
     house_create(&game->house_mgr, TEAM_ENEMY, HOUSE_HUT, e_base_x, e_base_y);
+    static const int e_spawn_offsets[3][2] = {
+        {-16, 44},
+        { 16, 44},
+        {  0, 58}
+    };
     for (int i = 0; i < 3; i++) {
-        entity_spawn(&game->entity_mgr, TEAM_ENEMY, ROLE_WORKER, (float)(e_base_x - 8 + i * 18), (float)(e_base_y + 42));
+        float sx = (float)(e_base_x + e_spawn_offsets[i][0]);
+        float sy = (float)(e_base_y + e_spawn_offsets[i][1]);
+        baldie_t *b = entity_spawn(&game->entity_mgr, TEAM_ENEMY, ROLE_WORKER, sx, sy);
+        if (b) {
+            b->facing = BALDIE_DIR_S;
+        }
     }
 
 
@@ -445,7 +464,8 @@ void game_render(game_state_t *game, surface_t *dest) {
 
             // Draw carried Baldie kicking its legs beneath the hand
             int kick_frame = (game->held_anim_timer / 4) % 4;
-            bal_sprites_draw_baldie(dest, &game->sprites, false, (int)game->held_unit->role, kick_frame,
+            bal_sprites_draw_baldie(dest, &game->sprites, false, (int)game->held_unit->role,
+                                    BALDIE_DIR_S, kick_frame,
                                     game->mouse_x - 8, game->mouse_y + 4, &game->palette);
         } else if (game->mouse_down) {
             cur_frame = CURSOR_FRAME_GRAB_HAND;

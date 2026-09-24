@@ -4,6 +4,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+static inline baldie_direction_t entity_calc_direction(float dx, float dy, baldie_direction_t prev_dir) {
+    float dist = dx * dx + dy * dy;
+    if (dist < 0.001f) return prev_dir;
+
+    float angle = atan2f(dy, dx) * (180.0f / (float)M_PI); // degrees -180 to +180
+
+    if (angle >= -22.5f && angle < 22.5f) {
+        return BALDIE_DIR_E;
+    } else if (angle >= 22.5f && angle < 67.5f) {
+        return BALDIE_DIR_SE;
+    } else if (angle >= 67.5f && angle < 112.5f) {
+        return BALDIE_DIR_S;
+    } else if (angle >= 112.5f && angle < 157.5f) {
+        return BALDIE_DIR_SW;
+    } else if (angle >= 157.5f || angle < -157.5f) {
+        return BALDIE_DIR_W;
+    } else if (angle >= -157.5f && angle < -112.5f) {
+        return BALDIE_DIR_NW;
+    } else if (angle >= -112.5f && angle < -67.5f) {
+        return BALDIE_DIR_N;
+    } else {
+        return BALDIE_DIR_NE;
+    }
+}
+
 void entity_manager_init(entity_manager_t *mgr) {
     if (!mgr) return;
     memset(mgr, 0, sizeof(entity_manager_t));
@@ -19,6 +48,7 @@ baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t 
             b->team = team;
             b->role = role;
             b->state = STATE_IDLE;
+            b->facing = BALDIE_DIR_S; // Default facing player/camera
             b->x = x;
             b->y = y;
             b->target_x = x;
@@ -72,6 +102,43 @@ bool entity_is_position_walkable(const bal_map_t *map, const bal_tileset_t *tile
 void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses) {
     if (!mgr) return;
 
+    // Soft separation between outdoor active units to avoid clustering
+    for (int i = 0; i < MAX_BALDIES; i++) {
+        baldie_t *b1 = &mgr->units[i];
+        if (!b1->active || b1->state == STATE_INSIDE_HOUSE || b1->state == STATE_CARRIED) continue;
+
+        for (int j = i + 1; j < MAX_BALDIES; j++) {
+            baldie_t *b2 = &mgr->units[j];
+            if (!b2->active || b2->state == STATE_INSIDE_HOUSE || b2->state == STATE_CARRIED) continue;
+
+            float cdx = b2->x - b1->x;
+            float cdy = b2->y - b1->y;
+            float dist_sq = cdx * cdx + cdy * cdy;
+            float min_dist = 14.0f;
+
+            if (dist_sq < min_dist * min_dist) {
+                float dist = sqrtf(dist_sq);
+                if (dist < 0.1f) {
+                    cdx = (float)((rand() % 3) - 1);
+                    cdy = (float)((rand() % 3) - 1);
+                    dist = 1.0f;
+                }
+                float push = (min_dist - dist) * 0.15f;
+                float nx = (cdx / dist) * push;
+                float ny = (cdy / dist) * push;
+
+                if (entity_is_position_walkable(map, tileset, houses, b1->x - nx, b1->y - ny)) {
+                    b1->x -= nx;
+                    b1->y -= ny;
+                }
+                if (entity_is_position_walkable(map, tileset, houses, b2->x + nx, b2->y + ny)) {
+                    b2->x += nx;
+                    b2->y += ny;
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < MAX_BALDIES; i++) {
         baldie_t *b = &mgr->units[i];
         if (!b->active) continue;
@@ -90,6 +157,10 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
             float dx = cur_wx - feet_x;
             float dy = cur_wy - feet_y;
             float dist = sqrtf(dx * dx + dy * dy);
+
+            if (dist > 0.1f) {
+                b->facing = entity_calc_direction(dx, dy, b->facing);
+            }
 
             if (dist < 4.0f) {
                 // Reached this waypoint! Advance to next
@@ -138,9 +209,9 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
 
                 if (b->x != old_x || b->y != old_y) {
                     b->anim_timer++;
-                    if (b->anim_timer >= 4) {
+                    if (b->anim_timer >= 3) {
                         b->anim_timer = 0;
-                        b->anim_frame = (b->anim_frame + 1) % 4;
+                        b->anim_frame = (b->anim_frame + 1) % 8;
                     }
                 } else {
                     // Did not move: advance waypoint or stop
@@ -161,6 +232,10 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
             float dx = b->target_x - b->x;
             float dy = b->target_y - b->y;
             float dist = sqrtf(dx * dx + dy * dy);
+
+            if (dist > 0.1f) {
+                b->facing = entity_calc_direction(dx, dy, b->facing);
+            }
 
             if (dist > 2.0f) {
                 b->state = STATE_WALKING;
@@ -191,9 +266,9 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
 
                 if (b->x != old_x || b->y != old_y) {
                     b->anim_timer++;
-                    if (b->anim_timer >= 4) {
+                    if (b->anim_timer >= 3) {
                         b->anim_timer = 0;
-                        b->anim_frame = (b->anim_frame + 1) % 4;
+                        b->anim_frame = (b->anim_frame + 1) % 8;
                     }
                 } else {
                     b->target_x = b->x;
@@ -206,23 +281,25 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
                 b->state = STATE_IDLE;
                 b->anim_frame = 0;
                 b->anim_timer = 0;
-                // Idle wander AI: occasionally pick a nearby walkable point on land
-                if ((rand() % 120) == 0) {
-                    float ox = (float)((rand() % 32) - 16);
-                    float oy = (float)((rand() % 32) - 16);
-                    float cand_x = b->x + ox;
-                    float cand_y = b->y + oy;
-                    if (entity_is_position_walkable(map, tileset, houses, cand_x, cand_y)) {
-                        b->target_x = cand_x;
-                        b->target_y = cand_y;
+                // Idle wander AI: frequently pick a random destination to explore the island
+                if ((rand() % 35) == 0) {
+                    for (int tries = 0; tries < 4; tries++) {
+                        float ox = (float)((rand() % 96) - 48);
+                        float oy = (float)((rand() % 96) - 48);
+                        if (fabsf(ox) < 10.0f && fabsf(oy) < 10.0f) continue;
+                        float cand_x = b->x + ox;
+                        float cand_y = b->y + oy;
+                        if (entity_is_position_walkable(map, tileset, houses, cand_x, cand_y)) {
+                            b->target_x = cand_x;
+                            b->target_y = cand_y;
+                            break;
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
 
 void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites) {
     if (!mgr || !dest) return;
@@ -243,8 +320,8 @@ void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_
         surface_fill_rect(dest, sx + 2, sy + 13, 12, 3, 0x66000000);
 
         if (sprites && sprites->player_data) {
-            // Authentic 1995 animated Baldie / Hairy sprite!
-            bal_sprites_draw_baldie(dest, sprites, (b->team == TEAM_ENEMY), (int)b->role, b->anim_frame, sx, sy, palette);
+            // Authentic 1995 multi-directional animated Baldie / Hairy sprite!
+            bal_sprites_draw_baldie(dest, sprites, (b->team == TEAM_ENEMY), (int)b->role, b->facing, b->anim_frame, sx, sy, palette);
         } else {
             // Procedural fallback
             uint32_t body_color = (b->role == ROLE_BUILDER) ? 0xFF3388FF :

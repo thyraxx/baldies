@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "render/surface.h"
 #include "assets/bal_palette.h"
+#include "assets/bal_sprites.h"
 
 #define MAX_BALDIES 256
 
@@ -36,6 +37,7 @@ typedef struct {
     baldie_team_t team;
     baldie_role_t role;
     baldie_state_t state;
+    baldie_direction_t facing;
     float x;
     float y;
     float target_x;
@@ -57,7 +59,6 @@ typedef struct {
     uint32_t count;
 } entity_manager_t;
 
-#include "assets/bal_sprites.h"
 #include "assets/bal_map.h"
 
 struct house_manager_s;

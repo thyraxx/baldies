@@ -53,22 +53,21 @@ void bal_sprites_free(bal_sprites_t *sprites) {
     }
 }
 
-void bal_sprites_draw_baldie(surface_t *dest,
-                             const bal_sprites_t *sprites,
-                             bool is_enemy,
-                             int role,
-                             int anim_frame,
-                             int dest_x, int dest_y,
-                             const bal_palette_t *palette) {
+void bal_sprites_draw_frame(surface_t *dest,
+                            const bal_sprites_t *sprites,
+                            bool is_enemy,
+                            int role,
+                            int sprite_idx,
+                            bool flip_x,
+                            int dest_x, int dest_y,
+                            const bal_palette_t *palette) {
     if (!dest || !dest->pixels || !sprites || !palette) return;
 
     const uint8_t *sheet = is_enemy ? (sprites->enemy_data ? sprites->enemy_data : sprites->player_data) : sprites->player_data;
     if (!sheet) return;
+    if (sprite_idx < 0 || sprite_idx >= TOTAL_SPRITES) return;
 
-    // Sprite frame: 4 frames of animation (sprites 0, 1, 2, 3)
-    int sprite_idx = anim_frame % 4;
     const uint8_t *spr_data = &sheet[sprite_idx * 256];
-
     int dw = (int)dest->width;
     int dh = (int)dest->height;
 
@@ -79,12 +78,12 @@ void bal_sprites_draw_baldie(surface_t *dest,
         const uint8_t *srow = &spr_data[py * SPRITE_CELL_W];
         uint32_t *drow = &dest->pixels[dy * dw];
 
-
         for (int px = 0; px < SPRITE_CELL_W; px++) {
             int dx = dest_x + px;
             if (dx < 0 || dx >= dw) continue;
 
-            uint8_t c = srow[px];
+            int sx = flip_x ? (SPRITE_CELL_W - 1 - px) : px;
+            uint8_t c = srow[sx];
             if (c == 0) continue; // Transparency
 
             uint32_t pixel_color = palette->bgra[c];
@@ -107,3 +106,59 @@ void bal_sprites_draw_baldie(surface_t *dest,
         }
     }
 }
+
+void bal_sprites_draw_baldie(surface_t *dest,
+                             const bal_sprites_t *sprites,
+                             bool is_enemy,
+                             int role,
+                             baldie_direction_t dir,
+                             int anim_frame,
+                             int dest_x, int dest_y,
+                             const bal_palette_t *palette) {
+    int frame = anim_frame % 8;
+    int base_sprite = 0;
+    bool flip_x = false;
+
+    switch (dir) {
+        case BALDIE_DIR_N:
+            base_sprite = 0;   // Row 0: North walk (away/back)
+            flip_x = false;
+            break;
+        case BALDIE_DIR_S:
+            base_sprite = 40;  // Row 2: South walk (facing front)
+            flip_x = false;
+            break;
+        case BALDIE_DIR_E:
+            base_sprite = 20;  // Row 1: East walk (facing right)
+            flip_x = false;
+            break;
+        case BALDIE_DIR_W:
+            base_sprite = 20;  // Row 1 mirrored: West walk (facing left)
+            flip_x = true;
+            break;
+        case BALDIE_DIR_SE:
+            base_sprite = 60;  // Row 3: South-East walk (facing front-right)
+            flip_x = false;
+            break;
+        case BALDIE_DIR_SW:
+            base_sprite = 60;  // Row 3 mirrored: South-West walk (facing front-left)
+            flip_x = true;
+            break;
+        case BALDIE_DIR_NE:
+            base_sprite = 20;  // Side profile facing right/up
+            flip_x = false;
+            break;
+        case BALDIE_DIR_NW:
+            base_sprite = 20;  // Side profile facing left/up
+            flip_x = true;
+            break;
+        default:
+            base_sprite = 40;
+            flip_x = false;
+            break;
+    }
+
+    int sprite_idx = base_sprite + frame;
+    bal_sprites_draw_frame(dest, sprites, is_enemy, role, sprite_idx, flip_x, dest_x, dest_y, palette);
+}
+

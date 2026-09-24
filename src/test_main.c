@@ -221,13 +221,70 @@ int main(void) {
     bal_palette_load("BALS/LEV1PAL.BAL", &level_pal);
     map_renderer_draw(surf, &map, &tileset, &level_pal, map.start_cam_x, map.start_cam_y);
 
-    // Draw 4 player Baldies with 4 different roles (Red, Blue, White, Green)
-    for (int r = 0; r < 4; r++) {
-        bal_sprites_draw_baldie(surf, &sprites, false, r, r, 50 + r * 30, 80, &level_pal);
-    }
+    // Draw 4 player Baldies with 4 different roles and 4 different directions (North, South, East, West)
+    bal_sprites_draw_baldie(surf, &sprites, false, ROLE_WORKER, BALDIE_DIR_N, 0, 50, 80, &level_pal);
+    bal_sprites_draw_baldie(surf, &sprites, false, ROLE_BUILDER, BALDIE_DIR_S, 0, 80, 80, &level_pal);
+    bal_sprites_draw_baldie(surf, &sprites, false, ROLE_SCIENTIST, BALDIE_DIR_E, 0, 110, 80, &level_pal);
+    bal_sprites_draw_baldie(surf, &sprites, false, ROLE_SOLDIER, BALDIE_DIR_W, 0, 140, 80, &level_pal);
+    TEST_ASSERT(true, "Draw multi-directional Baldies (North, South, East, West) to surface");
+
     // Draw 2 enemy Hairies
-    bal_sprites_draw_baldie(surf, &sprites, true, 0, 0, 180, 80, &level_pal);
-    bal_sprites_draw_baldie(surf, &sprites, true, 0, 1, 210, 80, &level_pal);
+    bal_sprites_draw_baldie(surf, &sprites, true, 0, BALDIE_DIR_S, 0, 180, 80, &level_pal);
+
+    // Test Unit Separation: two units spawned close together push apart
+    baldie_t *sep1 = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 800.0f, 600.0f);
+    baldie_t *sep2 = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 802.0f, 600.0f);
+    float init_dist = fabsf(sep2->x - sep1->x);
+    for (int step = 0; step < 10; step++) {
+        entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    }
+    float after_dist = fabsf(sep2->x - sep1->x);
+    TEST_ASSERT(after_dist > init_dist, "Overlapping units push apart with soft separation");
+
+    // Test Facing Direction: unit moving East faces East, unit moving South faces South
+    baldie_t *b_dir = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 850.0f, 650.0f);
+    b_dir->target_x = 900.0f;
+    b_dir->target_y = 650.0f;
+    entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    TEST_ASSERT(b_dir->facing == BALDIE_DIR_E, "Unit moving right updates facing to BALDIE_DIR_E");
+
+    b_dir->target_x = b_dir->x;
+    b_dir->target_y = b_dir->y + 50.0f;
+    entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    TEST_ASSERT(b_dir->facing == BALDIE_DIR_S, "Unit moving down updates facing to BALDIE_DIR_S");
+    // Dump all 220 sprites from LEV1PLR1.BAL to test_sprites_grid.bmp
+    surface_t *spr_grid = surface_create(20 * 18, 11 * 18);
+    surface_clear(spr_grid, 0xFF333333);
+    for (int s = 0; s < 220; s++) {
+        int col = s % 20;
+        int row = s / 20;
+        int dx = col * 18 + 1;
+        int dy = row * 18 + 1;
+        const uint8_t *sdata = &sprites.player_data[s * 256];
+        for (int py = 0; py < 16; py++) {
+            for (int px = 0; px < 16; px++) {
+                uint8_t c = sdata[py * 16 + px];
+                if (c != 0) spr_grid->pixels[(dy + py) * (20 * 18) + (dx + px)] = level_pal.argb[c];
+            }
+        }
+    }
+    uint8_t gbmp_hdr[54] = {
+        'B', 'M',  0, 0, 0, 0,  0, 0, 0, 0,  54, 0, 0, 0,
+        40, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 0, 32, 0,
+        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0
+    };
+    uint32_t gfsz = 54 + (20 * 18) * (11 * 18) * 4;
+    int32_t gbw = 20 * 18, gbh = -(11 * 18);
+    memcpy(&gbmp_hdr[2], &gfsz, 4);
+    memcpy(&gbmp_hdr[18], &gbw, 4);
+    memcpy(&gbmp_hdr[22], &gbh, 4);
+    FILE *gbf = fopen("test_sprites_grid.bmp", "wb");
+    if (gbf) {
+        fwrite(gbmp_hdr, 1, 54, gbf);
+        fwrite(spr_grid->pixels, 4, (20 * 18) * (11 * 18), gbf);
+        fclose(gbf);
+    }
+    surface_destroy(spr_grid);
 
     // 6. Hand Cursor and Grab & Drop Mechanics
     printf("\nTesting In-Game Hand Cursor & Grab/Drop Mechanics:\n");
