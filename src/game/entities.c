@@ -73,9 +73,8 @@ void entity_update_all(entity_manager_t *mgr) {
     }
 }
 
-void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette) {
+void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites) {
     if (!mgr || !dest) return;
-    (void)palette;
 
     for (int i = 0; i < MAX_BALDIES; i++) {
         const baldie_t *b = &mgr->units[i];
@@ -84,46 +83,25 @@ void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_
         int sx = (int)b->x - camera_x;
         int sy = (int)b->y - camera_y;
 
-        // Viewport bounds check
-        if (sx < -20 || sx > (int)dest->width || sy < -20 || sy > (int)dest->height) {
+        // Viewport bounds check (16x16 sprite)
+        if (sx < -16 || sx > (int)dest->width || sy < -16 || sy > (int)dest->height) {
             continue;
         }
 
-        // Color based on role & team
-        uint32_t body_color = 0xFFFF2222; // Red (Worker)
-        if (b->team == TEAM_PLAYER) {
-            switch (b->role) {
-                case ROLE_WORKER:    body_color = 0xFFFF3333; break; // Red
-                case ROLE_BUILDER:   body_color = 0xFF3388FF; break; // Blue
-                case ROLE_SCIENTIST: body_color = 0xFFFFFFFF; break; // White
-                case ROLE_SOLDIER:   body_color = 0xFF33DD33; break; // Green
-            }
+        // Draw shadow under unit
+        surface_fill_rect(dest, sx + 2, sy + 13, 12, 3, 0x66000000);
+
+        if (sprites && sprites->player_data) {
+            // Authentic 1995 animated Baldie / Hairy sprite!
+            bal_sprites_draw_baldie(dest, sprites, (b->team == TEAM_ENEMY), (int)b->role, b->anim_frame, sx, sy, palette);
         } else {
-            body_color = 0xFF884422; // Enemy Hairies (Brown/Dark)
+            // Procedural fallback
+            uint32_t body_color = (b->role == ROLE_BUILDER) ? 0xFF3388FF :
+                                 ((b->role == ROLE_SCIENTIST) ? 0xFFFFFFFF :
+                                 ((b->role == ROLE_SOLDIER) ? 0xFF33DD33 : 0xFFFF3333));
+            if (b->team == TEAM_ENEMY) body_color = 0xFF884422;
+            surface_fill_rect(dest, sx + 3, sy + 6, 10, 8, body_color);
+            surface_fill_rect(dest, sx + 4, sy, 8, 6, 0xFFFFCC99);
         }
-
-        uint32_t head_color = (b->team == TEAM_PLAYER) ? 0xFFFFCC99 : 0xFF553311; // Skin or Hairy
-        uint32_t shadow_color = 0x66000000;
-
-        // Shadow ellipse
-        surface_fill_rect(dest, sx + 2, sy + 18, 12, 4, shadow_color);
-
-        // Body / Overalls
-        int bounce = (b->state == STATE_WALKING && (b->anim_frame % 2 == 1)) ? 1 : 0;
-        surface_fill_rect(dest, sx + 3, sy + 8 - bounce, 10, 10, body_color);
-        surface_draw_rect(dest, sx + 3, sy + 8 - bounce, 10, 10, 0xFF000000);
-
-        // Bald Head
-        surface_fill_rect(dest, sx + 4, sy - bounce, 8, 8, head_color);
-        surface_draw_rect(dest, sx + 4, sy - bounce, 8, 8, 0xFF442200);
-
-        // Eyes
-        surface_fill_rect(dest, sx + 6, sy + 3 - bounce, 2, 2, 0xFF000000);
-        surface_fill_rect(dest, sx + 9, sy + 3 - bounce, 2, 2, 0xFF000000);
-
-        // Feet (walking leg alternation)
-        int leg_off = (b->anim_frame == 1) ? 2 : ((b->anim_frame == 3) ? -2 : 0);
-        surface_fill_rect(dest, sx + 3, sy + 18 - bounce, 4, 3 + leg_off, 0xFF222222);
-        surface_fill_rect(dest, sx + 9, sy + 18 - bounce, 4, 3 - leg_off, 0xFF222222);
     }
 }

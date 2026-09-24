@@ -12,9 +12,14 @@ typedef struct {
     uint16_t height;           // Map height in tiles (e.g. 112)
     uint16_t start_cam_x;      // Initial camera X in pixels (e.g. 880)
     uint16_t start_cam_y;      // Initial camera Y in pixels (e.g. 688)
+    uint16_t player_base_x;    // Player house X
+    uint16_t player_base_y;    // Player house Y
+    uint16_t enemy_base_x;     // Enemy house X
+    uint16_t enemy_base_y;     // Enemy house Y
     uint16_t *tiles;           // Array of width * height tile indices
     uint32_t total_tiles;      // width * height
 } bal_map_t;
+
 
 bool bal_map_load(uint32_t level_num, bal_map_t *out_map);
 void bal_map_free(bal_map_t *map);

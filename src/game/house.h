@@ -18,8 +18,8 @@ typedef struct {
     bool active;
     baldie_team_t team;
     house_tier_t tier;
-    int tile_x;
-    int tile_y;
+    int world_x;
+    int world_y;
     int rooms[4]; // Count of Baldies in each room: [0]=Red, [1]=Blue, [2]=White, [3]=Green
     int breed_timer;
 } house_t;
@@ -30,7 +30,8 @@ typedef struct {
 } house_manager_t;
 
 void house_manager_init(house_manager_t *mgr);
-house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tier, int tile_x, int tile_y);
+house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tier, int world_x, int world_y);
+
 void house_update_all(house_manager_t *mgr, entity_manager_t *entity_mgr);
 void house_render_all(const house_manager_t *mgr, surface_t *dest, int camera_x, int camera_y);
 

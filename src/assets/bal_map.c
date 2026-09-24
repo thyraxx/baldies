@@ -47,20 +47,41 @@ bool bal_map_load(uint32_t level_num, bal_map_t *out_map) {
     out_map->map_file[mi] = '\0';
 
     // Map dimensions at offset 0x22 (Big-Endian uint16 width, uint16 height)
-    out_map->width = (uint16_t)((lev_buf[0x22] << 8) | lev_buf[0x23]);
-    out_map->height = (uint16_t)((lev_buf[0x24] << 8) | lev_buf[0x25]);
+    // Map dimensions: offset 0x22 has rows (height), offset 0x24 has columns (width)
+    uint16_t dim_h = (uint16_t)((lev_buf[0x22] << 8) | lev_buf[0x23]);
+    uint16_t dim_w = (uint16_t)((lev_buf[0x24] << 8) | lev_buf[0x25]);
 
     // Initial camera at offset 0x44 (Little-Endian uint16 cam_x, uint16 cam_y)
     out_map->start_cam_x = (uint16_t)(lev_buf[0x44] | (lev_buf[0x45] << 8));
     out_map->start_cam_y = (uint16_t)(lev_buf[0x46] | (lev_buf[0x47] << 8));
 
-    // Fallbacks if zero or uninitialized
-    if (out_map->width == 0) out_map->width = 116;
-    if (out_map->height == 0) out_map->height = 112;
     if (out_map->start_cam_x == 0) out_map->start_cam_x = 880;
     if (out_map->start_cam_y == 0) out_map->start_cam_y = 688;
 
-    out_map->total_tiles = (uint32_t)out_map->width * out_map->height;
+    // Player base is at start camera location
+    out_map->player_base_x = out_map->start_cam_x;
+    out_map->player_base_y = out_map->start_cam_y;
+
+    // Parse records (each 32 bytes from 0x44 onwards) to find the enemy base
+    out_map->enemy_base_x = out_map->player_base_x;
+    out_map->enemy_base_y = out_map->player_base_y + 400; // safe fallback
+
+    uint32_t max_dist = 0;
+    for (size_t ro = 0x44; ro + 32 <= lev_read; ro += 32) {
+        uint16_t rx = (uint16_t)(lev_buf[ro] | (lev_buf[ro + 1] << 8));
+        uint16_t ry = (uint16_t)(lev_buf[ro + 2] | (lev_buf[ro + 3] << 8));
+        if (rx > 0 && ry > 0 && rx < (dim_w * 16) && ry < (dim_h * 16)) {
+            int dx = (int)rx - (int)out_map->player_base_x;
+            int dy = (int)ry - (int)out_map->player_base_y;
+            uint32_t dist = (uint32_t)(dx * dx + dy * dy);
+            if (dist > max_dist) {
+                max_dist = dist;
+                out_map->enemy_base_x = rx;
+                out_map->enemy_base_y = ry;
+            }
+        }
+    }
+
 
     // 2. Load MAP file
     char map_filename[64];
@@ -72,7 +93,27 @@ bool bal_map_load(uint32_t level_num, bal_map_t *out_map) {
         if (!f_map) return false;
     }
 
+    fseek(f_map, 0, SEEK_END);
+    long map_file_sz = ftell(f_map);
+    fseek(f_map, 0, SEEK_SET);
+
+    uint32_t total_words = (uint32_t)(map_file_sz / 2);
+
+    // Reconcile width and height with total map words
+    if (dim_w > 0 && (total_words % dim_w) == 0) {
+        out_map->width = dim_w;
+        out_map->height = (uint16_t)(total_words / dim_w);
+    } else if (dim_h > 0 && (total_words % dim_h) == 0) {
+        out_map->width = (uint16_t)(total_words / dim_h);
+        out_map->height = dim_h;
+    } else {
+        out_map->width = 112;
+        out_map->height = 116;
+    }
+
+    out_map->total_tiles = (uint32_t)out_map->width * out_map->height;
     size_t map_bytes = out_map->total_tiles * sizeof(uint16_t);
+
     out_map->tiles = (uint16_t*)malloc(map_bytes);
     if (!out_map->tiles) {
         fclose(f_map);

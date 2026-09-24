@@ -48,12 +48,12 @@ void surface_blit_tile(surface_t *dest,
     int dw = (int)dest->width;
     int dh = (int)dest->height;
 
-    // Fast-path: fully on-screen 32x32 tile
-    if (dest_x >= 0 && (dest_x + 32) <= dw && dest_y >= 0 && (dest_y + 32) <= dh) {
-        for (int y = 0; y < 32; y++) {
+    // Fast-path: fully on-screen 16x16 tile
+    if (dest_x >= 0 && (dest_x + 16) <= dw && dest_y >= 0 && (dest_y + 16) <= dh) {
+        for (int y = 0; y < 16; y++) {
             uint32_t *drow = &dest->pixels[(dest_y + y) * dw + dest_x];
-            const uint8_t *srow = &tile_pixels[y * 32];
-            for (int x = 0; x < 32; x++) {
+            const uint8_t *srow = &tile_pixels[y * 16];
+            for (int x = 0; x < 16; x++) {
                 drow[x] = palette->bgra[srow[x]];
             }
         }
@@ -63,17 +63,18 @@ void surface_blit_tile(surface_t *dest,
     // Clipped tile blit
     int start_x = (dest_x < 0) ? -dest_x : 0;
     int start_y = (dest_y < 0) ? -dest_y : 0;
-    int end_x = (dest_x + 32 > dw) ? (dw - dest_x) : 32;
-    int end_y = (dest_y + 32 > dh) ? (dh - dest_y) : 32;
+    int end_x = (dest_x + 16 > dw) ? (dw - dest_x) : 16;
+    int end_y = (dest_y + 16 > dh) ? (dh - dest_y) : 16;
 
     for (int y = start_y; y < end_y; y++) {
         uint32_t *drow = &dest->pixels[(dest_y + y) * dw + dest_x];
-        const uint8_t *srow = &tile_pixels[y * 32];
+        const uint8_t *srow = &tile_pixels[y * 16];
         for (int x = start_x; x < end_x; x++) {
             drow[x] = palette->bgra[srow[x]];
         }
     }
 }
+
 
 void surface_blit_paletted_sub(surface_t *dest,
                                const uint8_t *src_pixels,

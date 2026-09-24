@@ -23,9 +23,14 @@ typedef struct {
 bool hud_init(hud_resources_t *hud_res);
 void hud_free(hud_resources_t *hud_res);
 
+#define HUD_HEIGHT 48
+
 void hud_render(surface_t *dest,
                 const hud_resources_t *hud_res,
                 const hud_state_t *hud_state,
+                const char *level_name,
                 const bal_palette_t *palette);
+
+int hud_handle_click(int mouse_x, int mouse_y, int screen_w, int screen_h);
 
 #endif // HUD_H

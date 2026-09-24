@@ -11,13 +11,13 @@ void map_renderer_draw(surface_t *dest,
     int dh = (int)dest->height;
 
     // Calculate visible tile ranges
-    int start_tx = camera_x / 32;
-    int start_ty = camera_y / 32;
-    if (camera_x < 0) start_tx = (camera_x - 31) / 32;
-    if (camera_y < 0) start_ty = (camera_y - 31) / 32;
+    int start_tx = camera_x / 16;
+    int start_ty = camera_y / 16;
+    if (camera_x < 0) start_tx = (camera_x - 15) / 16;
+    if (camera_y < 0) start_ty = (camera_y - 15) / 16;
 
-    int end_tx = (camera_x + dw + 31) / 32;
-    int end_ty = (camera_y + dh + 31) / 32;
+    int end_tx = (camera_x + dw + 15) / 16;
+    int end_ty = (camera_y + dh + 15) / 16;
 
     // Clamp to map tile grid
     if (start_tx < 0) start_tx = 0;
@@ -26,9 +26,9 @@ void map_renderer_draw(surface_t *dest,
     if (end_ty > (int)map->height) end_ty = (int)map->height;
 
     for (int ty = start_ty; ty < end_ty; ty++) {
-        int screen_y = (ty * 32) - camera_y;
+        int screen_y = (ty * 16) - camera_y;
         for (int tx = start_tx; tx < end_tx; tx++) {
-            int screen_x = (tx * 32) - camera_x;
+            int screen_x = (tx * 16) - camera_x;
             uint16_t tile_idx = bal_map_get_tile(map, (uint32_t)tx, (uint32_t)ty);
             const uint8_t *tile_pixels = bal_tileset_get_tile(tileset, (uint32_t)tile_idx);
 
@@ -62,8 +62,8 @@ void map_renderer_draw_minimap(surface_t *dest,
             const uint8_t *tile_data = bal_tileset_get_tile(tileset, (uint32_t)tile_idx);
             uint32_t col = 0xFF000000;
             if (tile_data) {
-                // Sample center pixel (16, 16)
-                uint8_t c = tile_data[16 * 32 + 16];
+                // Sample center pixel (8, 8)
+                uint8_t c = tile_data[8 * 16 + 8];
                 col = palette->bgra[c];
             }
             int px = dest_x + x;
@@ -75,9 +75,10 @@ void map_renderer_draw_minimap(surface_t *dest,
     }
 
     // Draw camera rectangle on mini-map
-    int cam_mx = dest_x + (camera_x / 32);
-    int cam_my = dest_y + (camera_y / 32);
-    int cam_mw = (vp_w + 31) / 32;
-    int cam_mh = (vp_h + 31) / 32;
+    int cam_mx = dest_x + (camera_x / 16);
+    int cam_my = dest_y + (camera_y / 16);
+    int cam_mw = (vp_w + 15) / 16;
+    int cam_mh = (vp_h + 15) / 16;
     surface_draw_rect(dest, cam_mx, cam_my, cam_mw, cam_mh, 0xFF00FFFF); // Cyan camera box
 }
+
