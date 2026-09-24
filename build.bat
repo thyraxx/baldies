@@ -51,11 +51,15 @@ if %ERRORLEVEL% neq 0 (
     exit /b %ERRORLEVEL%
 )
 
-copy /y bin\baldies_c.exe baldies_c.exe >nul 2>&1
-copy /y bin\baldies_test.exe baldies_test.exe >nul 2>&1
+copy /y bin\baldies_c.exe baldies_c.exe >nul
+if errorlevel 1 echo [WARNING] Could not overwrite baldies_c.exe in root - game may be running.
+copy /y bin\baldies_test.exe baldies_test.exe >nul
 
-echo.
+
+
+echo(
 echo ======================================================
+
 echo [SUCCESS] Compilation complete!
 echo   - Unit Tests: baldies_test.exe (and bin\baldies_test.exe)
 echo   - Game Engine: baldies_c.exe    (and bin\baldies_c.exe)
