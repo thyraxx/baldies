@@ -129,6 +129,20 @@ bool bal_map_load(uint32_t level_num, bal_map_t *out_map) {
         return false;
     }
 
+    // Detect player cottage (tile 374) and enemy hut (tile 1210) from map tiles
+    for (uint32_t ty = 0; ty < out_map->height; ty++) {
+        for (uint32_t tx = 0; tx < out_map->width; tx++) {
+            uint16_t t = bal_map_get_tile(out_map, tx, ty);
+            if (t == 374) {
+                out_map->player_base_x = (uint16_t)(tx * 16);
+                out_map->player_base_y = (uint16_t)(ty * 16);
+            } else if (t == 1210) {
+                out_map->enemy_base_x = (uint16_t)(tx * 16);
+                out_map->enemy_base_y = (uint16_t)(ty * 16);
+            }
+        }
+    }
+
     return true;
 }
 
@@ -146,3 +160,35 @@ uint16_t bal_map_get_tile(const bal_map_t *map, uint32_t tile_x, uint32_t tile_y
     }
     return map->tiles[tile_y * map->width + tile_x];
 }
+
+bool bal_map_is_walkable(const bal_map_t *map, const bal_tileset_t *tileset, float x, float y) {
+    if (!map || !map->tiles) return false;
+
+    // Hard boundary margins: keep at least 1 tile inside world
+    float max_x = (float)(map->width - 1) * 16.0f;
+    float max_y = (float)(map->height - 1) * 16.0f;
+    if (x < 16.0f || x >= max_x || y < 16.0f || y >= max_y) {
+        return false;
+    }
+
+    int tx = (int)(x / 16.0f);
+    int ty = (int)(y / 16.0f);
+    if (tx < 0 || tx >= (int)map->width || ty < 0 || ty >= (int)map->height) {
+        return false;
+    }
+
+    uint16_t tile = bal_map_get_tile(map, (uint32_t)tx, (uint32_t)ty);
+
+    // 1. Water animation tiles (340 to 359)
+    if (tile >= 340 && tile <= 359) {
+        return false;
+    }
+
+    // 2. Tileset water classification
+    if (tileset && tile < 1280 && tileset->is_water[tile]) {
+        return false;
+    }
+
+    return true;
+}
+

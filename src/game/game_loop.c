@@ -99,10 +99,10 @@ bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h)
         player_base->rooms[0] = 2; // 2 breeding workers inside
     }
 
-    // Spawn initial player Baldies outside the base
+    // Spawn initial player Baldies on the lawn outside the cottage
     for (int i = 0; i < 4; i++) {
-        float sx = (float)(p_base_x + 10 + (i * 20));
-        float sy = (float)(p_base_y + 48);
+        float sx = (float)(p_base_x - 12 + (i * 18));
+        float sy = (float)(p_base_y + 54);
         baldie_role_t role = (baldie_role_t)(i % 4);
         entity_spawn(&game->entity_mgr, TEAM_PLAYER, role, sx, sy);
     }
@@ -113,8 +113,9 @@ bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h)
 
     house_create(&game->house_mgr, TEAM_ENEMY, HOUSE_HUT, e_base_x, e_base_y);
     for (int i = 0; i < 3; i++) {
-        entity_spawn(&game->entity_mgr, TEAM_ENEMY, ROLE_WORKER, (float)(e_base_x + 10 + i * 20), (float)(e_base_y + 48));
+        entity_spawn(&game->entity_mgr, TEAM_ENEMY, ROLE_WORKER, (float)(e_base_x - 8 + i * 18), (float)(e_base_y + 42));
     }
+
 
 
     // 8. Music
@@ -195,16 +196,19 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                 closest->role = (baldie_role_t)game->hud_state.selected_role;
                 bal_sfx_play(2); // Confirmation voice
             } else if (game->selected_unit) {
-                // Move selected unit to clicked location
-                game->selected_unit->target_x = world_mx;
-                game->selected_unit->target_y = world_my;
-                bal_sfx_play(3); // Order voice
+                // Move selected unit to clicked location (only if walkable land)
+                if (bal_map_is_walkable(&game->map, &game->tileset, world_mx, world_my)) {
+                    game->selected_unit->target_x = world_mx;
+                    game->selected_unit->target_y = world_my;
+                    bal_sfx_play(3); // Order voice
+                }
             }
         }
     }
 
     // 4. Update Simulation
-    entity_update_all(&game->entity_mgr);
+    entity_update_all(&game->entity_mgr, &game->map, &game->tileset);
+
     house_update_all(&game->house_mgr, &game->entity_mgr);
 
     // 5. Update HUD counts

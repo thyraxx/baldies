@@ -41,8 +41,28 @@ bool bal_tileset_load(const char *filepath, bal_tileset_t *out_tileset) {
 
     out_tileset->data = buffer;
     out_tileset->num_tiles = (uint32_t)(size / TILE_PIXELS);
+
+    // Classify water tiles
+    memset(out_tileset->is_water, 0, sizeof(out_tileset->is_water));
+    for (uint32_t t = 0; t < out_tileset->num_tiles && t < 1280; t++) {
+        if (t >= 340 && t <= 359) {
+            out_tileset->is_water[t] = 1;
+            continue;
+        }
+        int water_count = 0;
+        const uint8_t *tdata = &buffer[t * TILE_PIXELS];
+        for (int p = 0; p < TILE_PIXELS; p++) {
+            uint8_t c = tdata[p];
+            if (c >= 38 && c <= 46) {
+                water_count++;
+            }
+        }
+        out_tileset->is_water[t] = (water_count >= 120) ? 1 : 0;
+    }
+
     return true;
 }
+
 
 void bal_tileset_free(bal_tileset_t *tileset) {
     if (tileset && tileset->data) {

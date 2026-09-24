@@ -21,8 +21,12 @@ typedef struct {
 } bal_map_t;
 
 
+#include "bal_tiles.h"
+
 bool bal_map_load(uint32_t level_num, bal_map_t *out_map);
 void bal_map_free(bal_map_t *map);
 uint16_t bal_map_get_tile(const bal_map_t *map, uint32_t tile_x, uint32_t tile_y);
+bool bal_map_is_walkable(const bal_map_t *map, const bal_tileset_t *tileset, float x, float y);
 
 #endif // BAL_MAP_H
+
