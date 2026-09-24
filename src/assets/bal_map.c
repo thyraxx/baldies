@@ -189,6 +189,22 @@ bool bal_map_is_walkable(const bal_map_t *map, const bal_tileset_t *tileset, flo
         return false;
     }
 
+    // 3. Pixel-exact inspection on shoreline tiles
+    if (tileset && tileset->data && tile < tileset->num_tiles) {
+        const uint8_t *tdata = bal_tileset_get_tile(tileset, (uint32_t)tile);
+        if (tdata) {
+            int px = ((int)x) % 16;
+            int py = ((int)y) % 16;
+            if (px < 0) px += 16;
+            if (py < 0) py += 16;
+            uint8_t c = tdata[py * 16 + px];
+            if (c >= 37 && c <= 44) {
+                return false;
+            }
+        }
+    }
+
     return true;
 }
+
 
