@@ -1,4 +1,5 @@
 #include "entities.h"
+#include "house.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +34,7 @@ baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t 
     return NULL;
 }
 
-static bool is_baldie_position_walkable(const bal_map_t *map, const bal_tileset_t *tileset, float bx, float by) {
+static bool is_baldie_position_walkable(const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses, float bx, float by) {
     if (!map) return true;
     // Check feet (left, center, right)
     if (!bal_map_is_walkable(map, tileset, bx + 4.0f, by + 14.0f)) return false;
@@ -41,10 +42,18 @@ static bool is_baldie_position_walkable(const bal_map_t *map, const bal_tileset_
     if (!bal_map_is_walkable(map, tileset, bx + 12.0f, by + 14.0f)) return false;
     // Check body center
     if (!bal_map_is_walkable(map, tileset, bx + 8.0f, by + 8.0f)) return false;
+
+    // Check dynamic house solid walls/roof
+    if (houses) {
+        if (house_manager_is_point_blocked(houses, bx + 4.0f, by + 14.0f)) return false;
+        if (house_manager_is_point_blocked(houses, bx + 8.0f, by + 14.0f)) return false;
+        if (house_manager_is_point_blocked(houses, bx + 12.0f, by + 14.0f)) return false;
+        if (house_manager_is_point_blocked(houses, bx + 8.0f, by + 8.0f)) return false;
+    }
     return true;
 }
 
-void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset) {
+void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses) {
     if (!mgr) return;
 
     for (int i = 0; i < MAX_BALDIES; i++) {
@@ -69,18 +78,18 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
             float next_x = b->x + step_x;
             float next_y = b->y + step_y;
 
-            // Multi-point collision check with water and map boundaries
-            if (is_baldie_position_walkable(map, tileset, next_x, next_y)) {
+            // Multi-point collision check with water, map boundaries, and house obstacles
+            if (is_baldie_position_walkable(map, tileset, houses, next_x, next_y)) {
                 b->x = next_x;
                 b->y = next_y;
-            } else if (is_baldie_position_walkable(map, tileset, next_x, b->y)) {
+            } else if (is_baldie_position_walkable(map, tileset, houses, next_x, b->y)) {
                 // Slide along X axis
                 b->x = next_x;
-            } else if (is_baldie_position_walkable(map, tileset, b->x, next_y)) {
+            } else if (is_baldie_position_walkable(map, tileset, houses, b->x, next_y)) {
                 // Slide along Y axis
                 b->y = next_y;
             } else {
-                // Blocked by water / border: stop walking
+                // Blocked by water / obstacle / border: stop walking
                 b->target_x = b->x;
                 b->target_y = b->y;
                 b->state = STATE_IDLE;
@@ -99,7 +108,7 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
                 float oy = (float)((rand() % 48) - 24);
                 float cand_x = b->x + ox;
                 float cand_y = b->y + oy;
-                if (is_baldie_position_walkable(map, tileset, cand_x, cand_y)) {
+                if (is_baldie_position_walkable(map, tileset, houses, cand_x, cand_y)) {
                     b->target_x = cand_x;
                     b->target_y = cand_y;
                 }

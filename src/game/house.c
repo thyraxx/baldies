@@ -26,12 +26,52 @@ house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tie
     return NULL;
 }
 
+bool house_manager_is_point_blocked(const house_manager_t *mgr, float x, float y) {
+    if (!mgr) return false;
+
+    for (int i = 0; i < MAX_HOUSES; i++) {
+        const house_t *h = &mgr->houses[i];
+        if (!h->active) continue;
+
+        // Check 48x48 house bounding box
+        if (x >= (float)h->world_x && x < (float)(h->world_x + 48) &&
+            y >= (float)h->world_y && y < (float)(h->world_y + 48)) {
+            // Front doorway entrance: centered at x in [world_x + 14 .. world_x + 34], bottom row y in [world_y + 32 .. world_y + 48]
+            if (x >= (float)(h->world_x + 14) && x <= (float)(h->world_x + 34) &&
+                y >= (float)(h->world_y + 32) && y <= (float)(h->world_y + 48)) {
+                return false; // Walkable door entrance
+            }
+            return true; // Solid walls or roof
+        }
+    }
+    return false;
+}
+
 void house_update_all(house_manager_t *mgr, entity_manager_t *entity_mgr) {
     if (!mgr || !entity_mgr) return;
 
     for (int i = 0; i < MAX_HOUSES; i++) {
         house_t *h = &mgr->houses[i];
         if (!h->active) continue;
+
+        // Check for units arriving at the front door to enter the house
+        for (int u = 0; u < MAX_BALDIES; u++) {
+            baldie_t *b = &entity_mgr->units[u];
+            if (!b->active || b->team != h->team || b->state == STATE_INSIDE_HOUSE) continue;
+
+            // If unit was ordered to this house or reached the door area
+            if (b->house_id == i) {
+                float door_cx = (float)(h->world_x + 24);
+                float door_cy = (float)(h->world_y + 40);
+                float dist_to_door = (b->x + 8.0f - door_cx) * (b->x + 8.0f - door_cx) +
+                                     (b->y + 8.0f - door_cy) * (b->y + 8.0f - door_cy);
+                if (dist_to_door <= 64.0f) { // Within 8 pixels of door center
+                    h->rooms[b->role]++;
+                    b->active = false;
+                    b->state = STATE_INSIDE_HOUSE;
+                }
+            }
+        }
 
         // Room 0 (Workers / Breeders)
         int workers = h->rooms[0];

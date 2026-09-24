@@ -51,9 +51,12 @@ typedef struct {
 #include "assets/bal_sprites.h"
 #include "assets/bal_map.h"
 
+struct house_manager_s;
+typedef struct house_manager_s house_manager_t;
+
 void entity_manager_init(entity_manager_t *mgr);
 baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t role, float x, float y);
-void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset);
+void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses);
 void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites);
 
 #endif // ENTITIES_H

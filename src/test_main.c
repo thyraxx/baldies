@@ -10,6 +10,7 @@
 #include "assets/bal_midi.h"
 #include "assets/asset_path.h"
 #include "render/map_renderer.h"
+#include "game/house.h"
 
 
 
@@ -66,6 +67,84 @@ int main(void) {
     TEST_ASSERT(bal_map_is_walkable(&map, &tileset, 928.0f, 740.0f), "Island grass (928, 740) is walkable");
     TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 32.0f, 32.0f), "Ocean water (32, 32) is not walkable");
     TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, -10.0f, 50.0f), "Out-of-bounds coordinates are not walkable");
+
+    // Obstacle Collision Verification Tests
+    printf("\nTesting Obstacle Collision (Houses, Stones, Logs):\n");
+
+    // 1. Player Cottage Wall Collision vs Door
+    // Roof (57, 44), (58, 44), (59, 44) -> solid
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 57 * 16.0f + 8.0f, 44 * 16.0f + 8.0f), "Player cottage roof tile 374 at (57, 44) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 58 * 16.0f + 8.0f, 44 * 16.0f + 8.0f), "Player cottage roof tile 375 at (58, 44) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 59 * 16.0f + 8.0f, 44 * 16.0f + 8.0f), "Player cottage roof tile 376 at (59, 44) is solid");
+    // Walls (57, 45), (59, 45), (57, 46), (59, 46) -> solid
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 57 * 16.0f + 8.0f, 45 * 16.0f + 8.0f), "Player cottage wall tile 394 at (57, 45) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 57 * 16.0f + 8.0f, 46 * 16.0f + 8.0f), "Player cottage wall tile 414 at (57, 46) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 59 * 16.0f + 8.0f, 46 * 16.0f + 8.0f), "Player cottage wall tile 416 at (59, 46) is solid");
+    // Cottage Doorway (58, 46) -> walkable
+    TEST_ASSERT(bal_map_is_walkable(&map, &tileset, 58 * 16.0f + 8.0f, 46 * 16.0f + 8.0f), "Player cottage door tile 415 at (58, 46) is walkable");
+
+    // 2. Enemy Hut Wall Collision vs Door
+    // Roof/walls (57, 71), (58, 71), (59, 71), (57, 72), (59, 72) -> solid
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 57 * 16.0f + 8.0f, 71 * 16.0f + 8.0f), "Enemy hut roof tile 1210 at (57, 71) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 57 * 16.0f + 8.0f, 72 * 16.0f + 8.0f), "Enemy hut wall tile 1213 at (57, 72) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 59 * 16.0f + 8.0f, 72 * 16.0f + 8.0f), "Enemy hut wall tile 1215 at (59, 72) is solid");
+    // Hut Doorway (58, 72) -> walkable
+    TEST_ASSERT(bal_map_is_walkable(&map, &tileset, 58 * 16.0f + 8.0f, 72 * 16.0f + 8.0f), "Enemy hut door tile 1214 at (58, 72) is walkable");
+
+    // 3. Standing Stone Monoliths and Boulders
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 63 * 16.0f + 8.0f, 50 * 16.0f + 8.0f), "Stone monolith top tile 1189 at (63, 50) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 63 * 16.0f + 8.0f, 51 * 16.0f + 8.0f), "Stone monolith bottom tile 1209 at (63, 51) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 66 * 16.0f + 8.0f, 38 * 16.0f + 8.0f), "Boulder rock tile 1199 at (66, 38) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 45 * 16.0f + 8.0f, 46 * 16.0f + 8.0f), "Boulder rock tile 1199 at (45, 46) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 61 * 16.0f + 8.0f, 76 * 16.0f + 8.0f), "Stone rock tile 1190 at (61, 76) is solid");
+
+    // 4. Fallen Tree Logs and Stumps
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 52 * 16.0f + 8.0f, 77 * 16.0f + 8.0f), "Tree log top tile 1185 at (52, 77) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 52 * 16.0f + 8.0f, 78 * 16.0f + 8.0f), "Tree log bottom tile 1205 at (52, 78) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 49 * 16.0f + 8.0f, 64 * 16.0f + 8.0f), "Tree stump tile 1196 at (49, 64) is solid");
+    TEST_ASSERT(!bal_map_is_walkable(&map, &tileset, 50 * 16.0f + 8.0f, 65 * 16.0f + 8.0f), "Tree stump tile 1217 at (50, 65) is solid");
+
+    // 5. Dynamic House Manager Collision
+    house_manager_t test_hmgr;
+    house_manager_init(&test_hmgr);
+    house_create(&test_hmgr, TEAM_PLAYER, HOUSE_HUT, 912, 704);
+    TEST_ASSERT(house_manager_is_point_blocked(&test_hmgr, 912.0f + 8.0f, 704.0f + 8.0f), "House manager blocks roof (920, 712)");
+    TEST_ASSERT(house_manager_is_point_blocked(&test_hmgr, 912.0f + 4.0f, 704.0f + 40.0f), "House manager blocks left wall (916, 744)");
+    TEST_ASSERT(!house_manager_is_point_blocked(&test_hmgr, 912.0f + 24.0f, 704.0f + 40.0f), "House manager allows door entrance (936, 744)");
+    TEST_ASSERT(!house_manager_is_point_blocked(&test_hmgr, 912.0f + 24.0f, 704.0f + 54.0f), "House manager allows lawn outside door (936, 758)");
+
+    // 6. Entity Movement Collision Integration Test
+    printf("\nTesting Entity Movement Collision With Obstacles:\n");
+    entity_manager_t emgr;
+    entity_manager_init(&emgr);
+
+    // Test A: Baldie walking into cottage left wall is stopped/blocked
+    baldie_t *b_wall = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 900.0f, 740.0f);
+    b_wall->target_x = 920.0f; // Inside left wall (tx=57, ty=46)
+    b_wall->target_y = 740.0f;
+    for (int step = 0; step < 30; step++) {
+        entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    }
+    // Unit should be blocked before entering the wall (x cannot penetrate to 920)
+    TEST_ASSERT(b_wall->x < 908.0f, "Baldie blocked by cottage wall (does not penetrate to 920)");
+
+    // Test B: Baldie walking into stone monolith is stopped/blocked
+    baldie_t *b_stone = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 1008.0f, 780.0f);
+    b_stone->target_x = 1008.0f;
+    b_stone->target_y = 808.0f; // Inside stone monolith (tx=63, ty=50)
+    for (int step = 0; step < 30; step++) {
+        entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    }
+    TEST_ASSERT(b_stone->y < 796.0f, "Baldie blocked by stone monolith (does not penetrate to 808)");
+
+    // Test C: Baldie walking into fallen tree log is stopped/blocked
+    baldie_t *b_log = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 832.0f, 1210.0f);
+    b_log->target_x = 832.0f;
+    b_log->target_y = 1240.0f; // Inside tree log (tx=52, ty=77)
+    for (int step = 0; step < 30; step++) {
+        entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    }
+    TEST_ASSERT(b_log->y < 1228.0f, "Baldie blocked by fallen tree log (does not penetrate to 1240)");
 
 
     // 4. Sprites Test

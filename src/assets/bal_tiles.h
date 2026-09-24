@@ -9,11 +9,20 @@
 #define TILE_HEIGHT 16
 #define TILE_PIXELS (TILE_WIDTH * TILE_HEIGHT) // 256 bytes
 
+typedef enum {
+    TILE_PASS_WALKABLE = 0,
+    TILE_PASS_WATER    = 1,
+    TILE_PASS_SOLID    = 2,
+    TILE_PASS_DOOR     = 3
+} tile_passability_t;
+
 typedef struct {
-    uint8_t *data;          // Array of tile pixel data (num_tiles * 256 bytes)
-    uint32_t num_tiles;     // Number of 16x16 tiles (typically 1280)
-    uint8_t is_water[1280]; // 1 if water, 0 if land
+    uint8_t *data;              // Array of tile pixel data (num_tiles * 256 bytes)
+    uint32_t num_tiles;         // Number of 16x16 tiles (typically 1280)
+    uint8_t is_water[1280];     // 1 if water, 0 if land (legacy flag)
+    uint8_t passability[1280];  // TILE_PASS_* classification
 } bal_tileset_t;
+
 
 
 

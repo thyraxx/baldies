@@ -38,7 +38,7 @@ set "PLATFORM_SRCS=src\platform\platform_win32.c"
 
 
 echo [2/3] Compiling Baldies C Unit Tests (bin\baldies_test.exe)...
-cl.exe %CFLAGS% /Fe:bin\baldies_test.exe /Fo:obj\ src\test_main.c %ASSET_SRCS% %RENDER_SRCS% /link %LIBS%
+cl.exe %CFLAGS% /Fe:bin\baldies_test.exe /Fo:obj\ src\test_main.c %ASSET_SRCS% %RENDER_SRCS% src\game\entities.c src\game\house.c /link %LIBS%
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Unit test compilation failed!
     exit /b %ERRORLEVEL%

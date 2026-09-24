@@ -196,10 +196,32 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                 closest->role = (baldie_role_t)game->hud_state.selected_role;
                 bal_sfx_play(2); // Confirmation voice
             } else if (game->selected_unit) {
-                // Move selected unit to clicked location (only if walkable land)
-                if (bal_map_is_walkable(&game->map, &game->tileset, world_mx, world_my)) {
+                // Check if user clicked on an active friendly house
+                house_t *target_house = NULL;
+                int target_house_id = -1;
+                for (int h_idx = 0; h_idx < MAX_HOUSES; h_idx++) {
+                    house_t *h = &game->house_mgr.houses[h_idx];
+                    if (!h->active || h->team != game->selected_unit->team) continue;
+                    if (world_mx >= (float)h->world_x && world_mx < (float)(h->world_x + 48) &&
+                        world_my >= (float)h->world_y && world_my < (float)(h->world_y + 48)) {
+                        target_house = h;
+                        target_house_id = h_idx;
+                        break;
+                    }
+                }
+
+                if (target_house) {
+                    // Send unit to the doorway of the house
+                    game->selected_unit->target_x = (float)(target_house->world_x + 16);
+                    game->selected_unit->target_y = (float)(target_house->world_y + 38);
+                    game->selected_unit->house_id = target_house_id;
+                    bal_sfx_play(3); // Order voice
+                } else if (bal_map_is_walkable(&game->map, &game->tileset, world_mx, world_my) &&
+                           !house_manager_is_point_blocked(&game->house_mgr, world_mx, world_my)) {
+                    // Move selected unit to clicked location (only if walkable land and not blocked by obstacle)
                     game->selected_unit->target_x = world_mx;
                     game->selected_unit->target_y = world_my;
+                    game->selected_unit->house_id = -1;
                     bal_sfx_play(3); // Order voice
                 }
             }
@@ -207,9 +229,13 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
     }
 
     // 4. Update Simulation
-    entity_update_all(&game->entity_mgr, &game->map, &game->tileset);
+    entity_update_all(&game->entity_mgr, &game->map, &game->tileset, &game->house_mgr);
 
     house_update_all(&game->house_mgr, &game->entity_mgr);
+
+    if (game->selected_unit && !game->selected_unit->active) {
+        game->selected_unit = NULL;
+    }
 
     // 5. Update HUD counts
     uint32_t red = 0, blue = 0, white = 0, green = 0;
