@@ -50,7 +50,7 @@ void entity_set_path(baldie_t *b, const float *pts_x, const float *pts_y, int co
     b->target_y = pts_y[count - 1] - 12.0f;
 }
 
-static bool is_baldie_position_walkable(const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses, float bx, float by) {
+bool entity_is_position_walkable(const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses, float bx, float by) {
     if (!map) return true;
     // Check feet (left, center, right)
     if (!bal_map_is_walkable(map, tileset, bx + 5.0f, by + 13.0f)) return false;
@@ -97,7 +97,11 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
                 if (b->waypoint_index >= b->waypoint_count) {
                     b->waypoint_count = 0;
                     b->waypoint_index = 0;
+                    b->target_x = b->x;
+                    b->target_y = b->y;
                     b->state = STATE_IDLE;
+                    b->anim_frame = 0;
+                    b->anim_timer = 0;
                 }
             } else {
                 b->state = STATE_WALKING;
@@ -108,32 +112,52 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
 
                 float next_x = b->x + step_x;
                 float next_y = b->y + step_y;
+                float old_x = b->x;
+                float old_y = b->y;
 
-                if (is_baldie_position_walkable(map, tileset, houses, next_x, next_y)) {
+                if (entity_is_position_walkable(map, tileset, houses, next_x, next_y)) {
                     b->x = next_x;
                     b->y = next_y;
-                } else if (is_baldie_position_walkable(map, tileset, houses, next_x, b->y)) {
+                } else if (fabsf(step_x) > 0.05f && entity_is_position_walkable(map, tileset, houses, next_x, b->y)) {
                     b->x = next_x;
-                } else if (is_baldie_position_walkable(map, tileset, houses, b->x, next_y)) {
+                } else if (fabsf(step_y) > 0.05f && entity_is_position_walkable(map, tileset, houses, b->x, next_y)) {
                     b->y = next_y;
                 } else {
-                    // Try to advance waypoint if blocked
+                    // Blocked! Try to advance to next waypoint or finish
                     b->waypoint_index++;
                     if (b->waypoint_index >= b->waypoint_count) {
                         b->waypoint_count = 0;
                         b->waypoint_index = 0;
+                        b->target_x = b->x;
+                        b->target_y = b->y;
                         b->state = STATE_IDLE;
+                        b->anim_frame = 0;
+                        b->anim_timer = 0;
                     }
                 }
 
-                b->anim_timer++;
-                if (b->anim_timer >= 4) {
-                    b->anim_timer = 0;
-                    b->anim_frame = (b->anim_frame + 1) % 4;
+                if (b->x != old_x || b->y != old_y) {
+                    b->anim_timer++;
+                    if (b->anim_timer >= 4) {
+                        b->anim_timer = 0;
+                        b->anim_frame = (b->anim_frame + 1) % 4;
+                    }
+                } else {
+                    // Did not move: advance waypoint or stop
+                    b->waypoint_index++;
+                    if (b->waypoint_index >= b->waypoint_count) {
+                        b->waypoint_count = 0;
+                        b->waypoint_index = 0;
+                        b->target_x = b->x;
+                        b->target_y = b->y;
+                        b->state = STATE_IDLE;
+                        b->anim_frame = 0;
+                        b->anim_timer = 0;
+                    }
                 }
             }
         } else {
-            // 2. Direct movement fallback (or idle wander)
+            // 2. Direct movement (for idle wander)
             float dx = b->target_x - b->x;
             float dy = b->target_y - b->y;
             float dist = sqrtf(dx * dx + dy * dy);
@@ -141,39 +165,54 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
             if (dist > 2.0f) {
                 b->state = STATE_WALKING;
                 float speed = 1.5f;
+                if (dist < speed) speed = dist;
                 float step_x = (dx / dist) * speed;
                 float step_y = (dy / dist) * speed;
 
                 float next_x = b->x + step_x;
                 float next_y = b->y + step_y;
+                float old_x = b->x;
+                float old_y = b->y;
 
-                if (is_baldie_position_walkable(map, tileset, houses, next_x, next_y)) {
+                if (entity_is_position_walkable(map, tileset, houses, next_x, next_y)) {
                     b->x = next_x;
                     b->y = next_y;
-                } else if (is_baldie_position_walkable(map, tileset, houses, next_x, b->y)) {
+                } else if (fabsf(step_x) > 0.05f && entity_is_position_walkable(map, tileset, houses, next_x, b->y)) {
                     b->x = next_x;
-                } else if (is_baldie_position_walkable(map, tileset, houses, b->x, next_y)) {
+                } else if (fabsf(step_y) > 0.05f && entity_is_position_walkable(map, tileset, houses, b->x, next_y)) {
                     b->y = next_y;
                 } else {
                     b->target_x = b->x;
                     b->target_y = b->y;
                     b->state = STATE_IDLE;
+                    b->anim_frame = 0;
+                    b->anim_timer = 0;
                 }
 
-                b->anim_timer++;
-                if (b->anim_timer >= 4) {
+                if (b->x != old_x || b->y != old_y) {
+                    b->anim_timer++;
+                    if (b->anim_timer >= 4) {
+                        b->anim_timer = 0;
+                        b->anim_frame = (b->anim_frame + 1) % 4;
+                    }
+                } else {
+                    b->target_x = b->x;
+                    b->target_y = b->y;
+                    b->state = STATE_IDLE;
+                    b->anim_frame = 0;
                     b->anim_timer = 0;
-                    b->anim_frame = (b->anim_frame + 1) % 4;
                 }
             } else {
                 b->state = STATE_IDLE;
+                b->anim_frame = 0;
+                b->anim_timer = 0;
                 // Idle wander AI: occasionally pick a nearby walkable point on land
                 if ((rand() % 120) == 0) {
                     float ox = (float)((rand() % 32) - 16);
                     float oy = (float)((rand() % 32) - 16);
                     float cand_x = b->x + ox;
                     float cand_y = b->y + oy;
-                    if (is_baldie_position_walkable(map, tileset, houses, cand_x, cand_y)) {
+                    if (entity_is_position_walkable(map, tileset, houses, cand_x, cand_y)) {
                         b->target_x = cand_x;
                         b->target_y = cand_y;
                     }

@@ -68,6 +68,7 @@ baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t 
 void entity_set_path(baldie_t *b, const float *pts_x, const float *pts_y, int count);
 void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses);
 void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites);
+bool entity_is_position_walkable(const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses, float bx, float by);
 
 #endif // ENTITIES_H
 

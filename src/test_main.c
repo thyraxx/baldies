@@ -263,6 +263,8 @@ int main(void) {
     TEST_ASSERT(test_game.held_unit == NULL, "Hand drops unit (held_unit cleared)");
     TEST_ASSERT(b->state == STATE_IDLE && b->active == true, "Unit placed on ground in STATE_IDLE and active");
     TEST_ASSERT(b->x == (int)(940.0f / 16.0f) * 16.0f + 4.0f && b->y == (int)(760.0f / 16.0f) * 16.0f + 2.0f, "Unit aligned to target tile");
+    TEST_ASSERT(b->anim_frame == 0 && b->anim_timer == 0, "Placed unit has anim_frame reset to 0 (standing idle, not walking)");
+    TEST_ASSERT(entity_is_position_walkable(&test_game.map, &test_game.tileset, &test_game.house_mgr, b->x, b->y), "Placed unit is at 100% valid walkable position");
 
     // Test C: Dropping Baldie on Solid Obstacle (Snapping to nearest walkable tile)
     test_game.held_unit = b;
@@ -274,6 +276,7 @@ int main(void) {
     int b_tx = (int)(b->x / 16.0f);
     int b_ty = (int)(b->y / 16.0f);
     TEST_ASSERT(pathfind_is_tile_walkable(&test_game.map, &test_game.tileset, &test_game.house_mgr, b_tx, b_ty), "Unit safely placed on nearest walkable tile outside obstacle");
+    TEST_ASSERT(entity_is_position_walkable(&test_game.map, &test_game.tileset, &test_game.house_mgr, b->x, b->y), "Unit safely placed at valid entity position");
 
     // Test D: Dropping Baldie into House
     int initial_workers = th->rooms[ROLE_WORKER];
@@ -293,6 +296,16 @@ int main(void) {
     game_drop_held_unit(&test_game, 10 * 16.0f + 8.0f, 10 * 16.0f + 8.0f);
     TEST_ASSERT(test_game.held_unit == NULL, "Hand drops unit into ocean (held_unit cleared)");
     TEST_ASSERT(b_water->active == false, "Unit drowns when dropped into deep water");
+
+    // Test F: Unit moving directly into solid obstacle does not get stuck in walking animation
+    baldie_t *b_stuck = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 900.0f, 740.0f);
+    b_stuck->target_x = 900.0f; // Pure vertical move straight into cottage wall (dx=0, dy>0)
+    b_stuck->target_y = 760.0f;
+    for (int step = 0; step < 20; step++) {
+        entity_update_all(&test_game.entity_mgr, &test_game.map, &test_game.tileset, &test_game.house_mgr);
+    }
+    TEST_ASSERT(b_stuck->state == STATE_IDLE, "Blocked unit cleanly transitions to STATE_IDLE");
+    TEST_ASSERT(b_stuck->anim_frame == 0, "Blocked unit stops animating and resets anim_frame to 0");
 
 
     // Generate tileset atlas image (40x32 tiles of 16x16 = 640x512)

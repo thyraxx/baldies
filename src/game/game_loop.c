@@ -180,13 +180,34 @@ void game_drop_held_unit(game_state_t *game, float world_mx, float world_my) {
         pathfind_find_nearest_walkable_tile(&game->map, &game->tileset, &game->house_mgr, tx, ty, &place_tx, &place_ty);
     }
 
-    b->x = place_tx * 16.0f + 4.0f;
-    b->y = place_ty * 16.0f + 2.0f;
+    float drop_x = place_tx * 16.0f + 4.0f;
+    float drop_y = place_ty * 16.0f + 2.0f;
+
+    // Verify entity collision at drop location; if slightly blocked, search adjacent offsets
+    if (!entity_is_position_walkable(&game->map, &game->tileset, &game->house_mgr, drop_x, drop_y)) {
+        bool found = false;
+        for (int r = 1; r <= 3 && !found; r++) {
+            for (int dy = -r * 2; dy <= r * 2 && !found; dy += 2) {
+                for (int dx = -r * 2; dx <= r * 2 && !found; dx += 2) {
+                    if (entity_is_position_walkable(&game->map, &game->tileset, &game->house_mgr, drop_x + dx, drop_y + dy)) {
+                        drop_x += dx;
+                        drop_y += dy;
+                        found = true;
+                    }
+                }
+            }
+        }
+    }
+
+    b->x = drop_x;
+    b->y = drop_y;
     b->target_x = b->x;
     b->target_y = b->y;
     b->waypoint_count = 0;
     b->waypoint_index = 0;
     b->state = STATE_IDLE;
+    b->anim_frame = 0;
+    b->anim_timer = 0;
     game->held_unit = NULL;
     bal_sfx_play(5); // Drop sound
 }
@@ -276,6 +297,10 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                     closest->state = STATE_CARRIED;
                     closest->waypoint_count = 0;
                     closest->waypoint_index = 0;
+                    closest->target_x = closest->x;
+                    closest->target_y = closest->y;
+                    closest->anim_frame = 0;
+                    closest->anim_timer = 0;
                     game->grab_x = input->mouse_x;
                     game->grab_y = input->mouse_y;
                     game->selected_unit = closest;

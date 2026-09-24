@@ -130,7 +130,7 @@ static bool is_line_walkable(const bal_map_t *map, const bal_tileset_t *tileset,
     float dist = sqrtf(dx * dx + dy * dy);
     if (dist < 2.0f) return true;
 
-    int steps = (int)(dist / 6.0f) + 1;
+    int steps = (int)(dist / 4.0f) + 1;
     for (int i = 0; i <= steps; i++) {
         float t = (float)i / (float)steps;
         float sx = x0 + dx * t;
@@ -138,6 +138,18 @@ static bool is_line_walkable(const bal_map_t *map, const bal_tileset_t *tileset,
         int tx = (int)(sx / 16.0f);
         int ty = (int)(sy / 16.0f);
         if (!pathfind_is_tile_walkable(map, tileset, houses, tx, ty)) {
+            return false;
+        }
+        if (!pathfind_is_tile_walkable(map, tileset, houses, (int)((sx - 3.0f) / 16.0f), ty)) {
+            return false;
+        }
+        if (!pathfind_is_tile_walkable(map, tileset, houses, (int)((sx + 3.0f) / 16.0f), ty)) {
+            return false;
+        }
+        if (!pathfind_is_tile_walkable(map, tileset, houses, tx, (int)((sy - 2.0f) / 16.0f))) {
+            return false;
+        }
+        if (!pathfind_is_tile_walkable(map, tileset, houses, tx, (int)((sy + 2.0f) / 16.0f))) {
             return false;
         }
     }
