@@ -317,16 +317,31 @@ int main(void) {
     // Test menu button interactions
     platform_input_t menu_input;
     memset(&menu_input, 0, sizeof(menu_input));
-    // Click NEXT > button at (450, 320)
-    menu_input.mouse_x = 450;
+
+    // Verify left-offset bug is fixed: x=230 is outside drawn START MISSION (x: 245..553)
+    menu_input.mouse_x = 230;
+    menu_input.mouse_y = 370;
+    menu_input.mouse_left_clicked = false;
+    menu_update(&test_menu, &menu_input, 640, 480, NULL);
+    TEST_ASSERT(test_menu.hovered_button == 0, "Mouse at x=230 (outside drawn button) does not hover START button");
+
+    // Hover directly over drawn START MISSION (card_x + 215 = 245, width 308 -> center ~399, y=370)
+    menu_input.mouse_x = 399;
+    menu_input.mouse_y = 370;
+    menu_update(&test_menu, &menu_input, 640, 480, NULL);
+    TEST_ASSERT(test_menu.hovered_button == 1, "Mouse over rendered START button sets hovered_button == 1");
+
+    // Click NEXT > button at rendered position (card_x + 434 = 464, width 42 -> center ~485, y=320)
+    menu_input.mouse_x = 485;
     menu_input.mouse_y = 320;
     menu_input.mouse_left_clicked = true;
     menu_update(&test_menu, &menu_input, 640, 480, NULL);
     TEST_ASSERT(test_menu.selected_level == 2, "Clicking NEXT button advances to Level 2");
 
-    // Click START MISSION button at (300, 370)
-    menu_input.mouse_x = 300;
+    // Click START MISSION button at rendered center (399, 370)
+    menu_input.mouse_x = 399;
     menu_input.mouse_y = 370;
+    menu_input.mouse_left_clicked = true;
     uint32_t chosen_lvl = 0;
     menu_action_t act = menu_update(&test_menu, &menu_input, 640, 480, &chosen_lvl);
     TEST_ASSERT(act == MENU_ACTION_START_LEVEL && chosen_lvl == 2, "Clicking START MISSION returns MENU_ACTION_START_LEVEL for Level 2");

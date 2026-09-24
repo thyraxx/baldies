@@ -181,23 +181,30 @@ menu_action_t menu_update(menu_state_t *menu, const platform_input_t *input, int
     menu->anim_tick++;
     menu->mouse_down = input->mouse_left_down;
 
-    // Button Geometry:
-    // 1: START MISSION   (215, 352, 310, 46)
-    // 2: PREV LEVEL <    (262, 304,  42, 34)
-    // 3: NEXT LEVEL >    (434, 304,  42, 34)
-    // 4: QUIT GAME       (215, 408, 310, 36)
-    // 5: PREV 10 [ -10 ] (215, 304,  42, 34)
-    // 6: NEXT 10 [ +10 ] (483, 304,  42, 34)
+    int cx = (screen_w > 0) ? (screen_w / 2) : 320;
+    int card_x = cx - 290;
+    int card_y = 262;
+    int row_y = card_y + 42;       // 304
+    int btn_start_y = card_y + 90; // 352
+    int btn_quit_y = card_y + 146; // 408
+
     int mx = input->mouse_x;
     int my = input->mouse_y;
     int hover = 0;
 
-    if (mx >= 215 && mx <= 525 && my >= 352 && my <= 398) hover = 1;
-    else if (mx >= 262 && mx <= 304 && my >= 304 && my <= 338) hover = 2;
-    else if (mx >= 434 && mx <= 476 && my >= 304 && my <= 338) hover = 3;
-    else if (mx >= 215 && mx <= 525 && my >= 408 && my <= 444) hover = 4;
-    else if (mx >= 215 && mx <= 257 && my >= 304 && my <= 338) hover = 5;
-    else if (mx >= 483 && mx <= 525 && my >= 304 && my <= 338) hover = 6;
+    // Button Geometry aligned exactly with menu_render:
+    // 1: START MISSION   (card_x + 215, btn_start_y, 308, 46)
+    if (mx >= card_x + 215 && mx <= card_x + 215 + 308 && my >= btn_start_y && my <= btn_start_y + 46) hover = 1;
+    // 2: PREV LEVEL <    (card_x + 262, row_y, 42, 34)
+    else if (mx >= card_x + 262 && mx <= card_x + 262 + 42 && my >= row_y && my <= row_y + 34) hover = 2;
+    // 3: NEXT LEVEL >    (card_x + 434, row_y, 42, 34)
+    else if (mx >= card_x + 434 && mx <= card_x + 434 + 42 && my >= row_y && my <= row_y + 34) hover = 3;
+    // 4: QUIT GAME       (card_x + 215, btn_quit_y, 308, 36)
+    else if (mx >= card_x + 215 && mx <= card_x + 215 + 308 && my >= btn_quit_y && my <= btn_quit_y + 36) hover = 4;
+    // 5: PREV 10 [ -10 ] (card_x + 215, row_y, 42, 34)
+    else if (mx >= card_x + 215 && mx <= card_x + 215 + 42 && my >= row_y && my <= row_y + 34) hover = 5;
+    // 6: NEXT 10 [ +10 ] (card_x + 481, row_y, 42, 34)
+    else if (mx >= card_x + 481 && mx <= card_x + 481 + 42 && my >= row_y && my <= row_y + 34) hover = 6;
 
     menu->hovered_button = hover;
 
