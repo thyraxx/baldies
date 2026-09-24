@@ -94,6 +94,13 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             g_win_w = LOWORD(lParam);
             g_win_h = HIWORD(lParam);
             return 0;
+
+        case WM_SETCURSOR:
+            if (LOWORD(lParam) == HTCLIENT) {
+                SetCursor(NULL);
+                return TRUE;
+            }
+            break;
     }
 
     return DefWindowProcA(hWnd, msg, wParam, lParam);
@@ -150,6 +157,7 @@ void platform_poll_events(platform_input_t *out_input) {
     // Reset one-shot clicks
     g_current_input.mouse_left_clicked = false;
     g_current_input.mouse_right_clicked = false;
+    g_current_input.mouse_left_released = false;
     g_current_input.key_toggle_fullscreen = false;
 
     MSG msg;
@@ -161,6 +169,9 @@ void platform_poll_events(platform_input_t *out_input) {
     // Detect click edge
     if (g_current_input.mouse_left_down && !g_prev_left) {
         g_current_input.mouse_left_clicked = true;
+    }
+    if (!g_current_input.mouse_left_down && g_prev_left) {
+        g_current_input.mouse_left_released = true;
     }
     if (g_current_input.mouse_right_down && !g_prev_right) {
         g_current_input.mouse_right_clicked = true;

@@ -25,7 +25,8 @@ typedef enum {
     STATE_WALKING = 1,
     STATE_INSIDE_HOUSE = 2,
     STATE_CHOPPING = 3,
-    STATE_FIGHTING = 4
+    STATE_FIGHTING = 4,
+    STATE_CARRIED = 5
 } baldie_state_t;
 
 #define MAX_WAYPOINTS 64

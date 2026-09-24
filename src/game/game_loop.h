@@ -14,6 +14,7 @@
 #include "entities.h"
 #include "house.h"
 #include "menu.h"
+#include "render/bal_cursor.h"
 
 typedef enum {
     APP_STATE_MENU = 0,
@@ -28,6 +29,7 @@ typedef struct {
     bal_tileset_t tileset;
     bal_map_t map;
     bal_sprites_t sprites;
+    bal_cursor_t cursor;
 
     camera_t camera;
     hud_state_t hud_state;
@@ -36,6 +38,13 @@ typedef struct {
     house_manager_t house_mgr;
 
     baldie_t *selected_unit;
+    baldie_t *held_unit; // Unit currently picked up in the Hand
+    int mouse_x;
+    int mouse_y;
+    int grab_x;
+    int grab_y;
+    int held_anim_timer;
+
     uint32_t current_level;
     bool running;
 } game_state_t;
@@ -45,6 +54,7 @@ bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h)
 void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int vp_h);
 void game_render(game_state_t *game, surface_t *dest);
 void game_shutdown(game_state_t *game);
+void game_drop_held_unit(game_state_t *game, float world_mx, float world_my);
 
 #endif // GAME_LOOP_H
 

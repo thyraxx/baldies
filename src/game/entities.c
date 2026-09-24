@@ -76,8 +76,8 @@ void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_ti
         baldie_t *b = &mgr->units[i];
         if (!b->active) continue;
 
-        if (b->state == STATE_INSIDE_HOUSE) {
-            continue; // Handled by house simulation
+        if (b->state == STATE_INSIDE_HOUSE || b->state == STATE_CARRIED) {
+            continue; // Handled by house simulation or player hand
         }
 
         // 1. Waypoint-based movement (from pathfinding)
@@ -190,7 +190,7 @@ void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_
 
     for (int i = 0; i < MAX_BALDIES; i++) {
         const baldie_t *b = &mgr->units[i];
-        if (!b->active || b->state == STATE_INSIDE_HOUSE) continue;
+        if (!b->active || b->state == STATE_INSIDE_HOUSE || b->state == STATE_CARRIED) continue;
 
         int sx = (int)b->x - camera_x;
         int sy = (int)b->y - camera_y;

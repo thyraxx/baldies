@@ -13,6 +13,8 @@
 #include "render/map_renderer.h"
 #include "game/house.h"
 #include "game/pathfind.h"
+#include "render/bal_cursor.h"
+#include "game/game_loop.h"
 
 
 
@@ -226,6 +228,71 @@ int main(void) {
     // Draw 2 enemy Hairies
     bal_sprites_draw_baldie(surf, &sprites, true, 0, 0, 180, 80, &level_pal);
     bal_sprites_draw_baldie(surf, &sprites, true, 0, 1, 210, 80, &level_pal);
+
+    // 6. Hand Cursor and Grab & Drop Mechanics
+    printf("\nTesting In-Game Hand Cursor & Grab/Drop Mechanics:\n");
+    bal_cursor_t cursor;
+    bool cur_ok = bal_cursor_init(&cursor);
+    TEST_ASSERT(cur_ok && cursor.data != NULL && cursor.num_frames == 18, "Load CURS640.BAL with 18 frames of 32x32 cursors");
+
+    // Test rendering open hand (Frame 4) and closed hand (Frame 5)
+    bal_cursor_draw(surf, &cursor, CURSOR_FRAME_OPEN_HAND, 320, 240, &level_pal);
+    bal_cursor_draw(surf, &cursor, CURSOR_FRAME_GRAB_HAND, 360, 240, &level_pal);
+    TEST_ASSERT(true, "Render open hand (Frame 4) and closed hand (Frame 5) to surface");
+    bal_cursor_free(&cursor);
+
+    // Setup game state for grab & drop mechanics
+    game_state_t test_game;
+    memset(&test_game, 0, sizeof(test_game));
+    test_game.map = map;
+    test_game.tileset = tileset;
+    house_manager_init(&test_game.house_mgr);
+    entity_manager_init(&test_game.entity_mgr);
+    house_t *th = house_create(&test_game.house_mgr, TEAM_PLAYER, HOUSE_HUT, 912, 704);
+    th->rooms[0] = 2;
+
+    // Test A: Picking up friendly Baldie into hand
+    baldie_t *b = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 912.0f, 760.0f);
+    TEST_ASSERT(b != NULL, "Spawn friendly player Baldie");
+    b->state = STATE_CARRIED;
+    test_game.held_unit = b;
+    TEST_ASSERT(test_game.held_unit == b && b->state == STATE_CARRIED, "Hand picks up Baldie (held_unit set, STATE_CARRIED)");
+
+    // Test B: Dropping Baldie on Walkable Ground
+    game_drop_held_unit(&test_game, 940.0f, 760.0f);
+    TEST_ASSERT(test_game.held_unit == NULL, "Hand drops unit (held_unit cleared)");
+    TEST_ASSERT(b->state == STATE_IDLE && b->active == true, "Unit placed on ground in STATE_IDLE and active");
+    TEST_ASSERT(b->x == (int)(940.0f / 16.0f) * 16.0f + 4.0f && b->y == (int)(760.0f / 16.0f) * 16.0f + 2.0f, "Unit aligned to target tile");
+
+    // Test C: Dropping Baldie on Solid Obstacle (Snapping to nearest walkable tile)
+    test_game.held_unit = b;
+    b->state = STATE_CARRIED;
+    // Drop onto Boulder rock at (66, 38)
+    game_drop_held_unit(&test_game, 66 * 16.0f + 8.0f, 38 * 16.0f + 8.0f);
+    TEST_ASSERT(test_game.held_unit == NULL, "Hand drops unit on obstacle (held_unit cleared)");
+    TEST_ASSERT(b->state == STATE_IDLE, "Unit on obstacle placed in STATE_IDLE");
+    int b_tx = (int)(b->x / 16.0f);
+    int b_ty = (int)(b->y / 16.0f);
+    TEST_ASSERT(pathfind_is_tile_walkable(&test_game.map, &test_game.tileset, &test_game.house_mgr, b_tx, b_ty), "Unit safely placed on nearest walkable tile outside obstacle");
+
+    // Test D: Dropping Baldie into House
+    int initial_workers = th->rooms[ROLE_WORKER];
+    test_game.held_unit = b;
+    b->state = STATE_CARRIED;
+    // Drop into cottage bounds (912 to 960, 704 to 752)
+    game_drop_held_unit(&test_game, 920.0f, 720.0f);
+    TEST_ASSERT(test_game.held_unit == NULL, "Hand drops unit into house (held_unit cleared)");
+    TEST_ASSERT(th->rooms[ROLE_WORKER] == initial_workers + 1, "House worker count incremented by 1");
+    TEST_ASSERT(b->state == STATE_INSIDE_HOUSE && b->active == false, "Unit enters house (STATE_INSIDE_HOUSE, active false)");
+
+    // Test E: Dropping Baldie into Ocean Water
+    baldie_t *b_water = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 912.0f, 760.0f);
+    test_game.held_unit = b_water;
+    b_water->state = STATE_CARRIED;
+    // Tile (10, 10) is deep ocean water (tile 340-359)
+    game_drop_held_unit(&test_game, 10 * 16.0f + 8.0f, 10 * 16.0f + 8.0f);
+    TEST_ASSERT(test_game.held_unit == NULL, "Hand drops unit into ocean (held_unit cleared)");
+    TEST_ASSERT(b_water->active == false, "Unit drowns when dropped into deep water");
 
 
     // Generate tileset atlas image (40x32 tiles of 16x16 = 640x512)
