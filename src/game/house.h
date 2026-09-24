@@ -24,7 +24,7 @@ typedef struct {
     int breed_timer;
 } house_t;
 
-typedef struct {
+typedef struct house_manager_s {
     house_t houses[MAX_HOUSES];
     uint32_t count;
 } house_manager_t;
@@ -32,6 +32,7 @@ typedef struct {
 void house_manager_init(house_manager_t *mgr);
 house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tier, int world_x, int world_y);
 
+bool house_manager_is_point_blocked(const house_manager_t *mgr, float x, float y);
 void house_update_all(house_manager_t *mgr, entity_manager_t *entity_mgr);
 void house_render_all(const house_manager_t *mgr, surface_t *dest, int camera_x, int camera_y);
 

@@ -184,10 +184,14 @@ bool bal_map_is_walkable(const bal_map_t *map, const bal_tileset_t *tileset, flo
         return false;
     }
 
-    // 2. Tileset water classification
-    if (tileset && tile < 1280 && tileset->is_water[tile]) {
-        return false;
+    // 2. Tileset passability classification (water or solid obstacle)
+    if (tileset && tile < 1280) {
+        uint8_t pass = tileset->passability[tile];
+        if (pass == TILE_PASS_WATER || pass == TILE_PASS_SOLID) {
+            return false;
+        }
     }
+
 
     // 3. Pixel-exact inspection on shoreline tiles
     if (tileset && tileset->data && tile < tileset->num_tiles) {

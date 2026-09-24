@@ -87,8 +87,19 @@ int main(int argc, char **argv) {
 
         // 2. Fixed-rate 30 TPS simulation updates
         uint64_t now = platform_get_time_ms();
+        if (now - last_tick_time > 150) {
+            // Prevent spiral of death if window was dragged or paused
+            last_tick_time = now - tick_interval_ms;
+        }
+
         while (now - last_tick_time >= tick_interval_ms) {
             game_tick(&game, &input, render_surface->width, render_surface->height);
+            // One-shot edge events consumed by simulation tick
+            input.mouse_left_clicked = false;
+            input.mouse_left_released = false;
+            input.mouse_right_clicked = false;
+            input.mouse_right_released = false;
+            input.key_escape_pressed = false;
             last_tick_time += tick_interval_ms;
         }
 

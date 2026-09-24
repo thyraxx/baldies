@@ -42,26 +42,60 @@ bool bal_tileset_load(const char *filepath, bal_tileset_t *out_tileset) {
     out_tileset->data = buffer;
     out_tileset->num_tiles = (uint32_t)(size / TILE_PIXELS);
 
-    // Classify water tiles
+    // Classify tile passability
     memset(out_tileset->is_water, 0, sizeof(out_tileset->is_water));
+    memset(out_tileset->passability, TILE_PASS_WALKABLE, sizeof(out_tileset->passability));
+
     for (uint32_t t = 0; t < out_tileset->num_tiles && t < 1280; t++) {
+        // Pure ocean water animation tiles
         if (t >= 340 && t <= 359) {
             out_tileset->is_water[t] = 1;
+            out_tileset->passability[t] = TILE_PASS_WATER;
             continue;
         }
+
+        // Doors and entrances (walkable)
+        if (t == 415 || t == 1214) {
+            out_tileset->passability[t] = TILE_PASS_DOOR;
+            continue;
+        }
+
+        // Player cottage solid walls and roof
+        if ((t >= 374 && t <= 376) || (t >= 394 && t <= 396) || t == 414 || t == 416) {
+            out_tileset->passability[t] = TILE_PASS_SOLID;
+            continue;
+        }
+
+        // Enemy hut solid walls and roof
+        if ((t >= 1210 && t <= 1213) || t == 1215) {
+            out_tileset->passability[t] = TILE_PASS_SOLID;
+            continue;
+        }
+
+        // Stones, monoliths, boulders, fallen tree logs, stumps (1180 to 1220)
+        if (t >= 1180 && t <= 1220) {
+            out_tileset->passability[t] = TILE_PASS_SOLID;
+            continue;
+        }
+
+        // Water pixel count check
         int water_count = 0;
         const uint8_t *tdata = &buffer[t * TILE_PIXELS];
         for (int p = 0; p < TILE_PIXELS; p++) {
             uint8_t c = tdata[p];
-            if (c >= 38 && c <= 46) {
+            if (c >= 37 && c <= 44) {
                 water_count++;
             }
         }
-        out_tileset->is_water[t] = (water_count >= 120) ? 1 : 0;
+        if (water_count >= 120) {
+            out_tileset->is_water[t] = 1;
+            out_tileset->passability[t] = TILE_PASS_WATER;
+        }
     }
 
     return true;
 }
+
 
 
 void bal_tileset_free(bal_tileset_t *tileset) {

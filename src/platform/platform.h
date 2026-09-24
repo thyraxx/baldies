@@ -12,6 +12,8 @@ typedef struct {
     bool mouse_right_down;
     bool mouse_left_clicked;
     bool mouse_right_clicked;
+    bool mouse_left_released;
+    bool mouse_right_released;
 
     // Movement & camera inputs
     bool key_left;
@@ -21,7 +23,10 @@ typedef struct {
 
     // Actions & shortcuts
     bool key_escape;
+    bool key_escape_pressed;
     bool key_space;
+    bool key_0;
+    bool key_h;
     bool key_1;
     bool key_2;
     bool key_3;
