@@ -31,6 +31,7 @@ typedef struct {
     int p_base_x, p_base_y;  // player base tile coordinates
     int e_base_x, e_base_y;  // enemy base tile coordinates
     uint32_t anim_tick;
+    uint32_t key_cooldown;
 } menu_state_t;
 
 bool menu_init(menu_state_t *menu);

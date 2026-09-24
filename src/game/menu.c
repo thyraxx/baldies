@@ -208,32 +208,37 @@ menu_action_t menu_update(menu_state_t *menu, const platform_input_t *input, int
 
     menu->hovered_button = hover;
 
-    // Handle Keyboard Shortcuts
-    if (input->key_left) {
-        if (menu->selected_level > 1) {
-            menu->selected_level--;
+    // Handle Keyboard Shortcuts (debounced with cooldown)
+    if (menu->key_cooldown > 0) {
+        menu->key_cooldown--;
+    } else {
+        if (input->key_left) {
+            if (menu->selected_level > 1) {
+                menu->selected_level--;
+                bal_sfx_play(5);
+                menu_load_preview(menu, menu->selected_level);
+                menu->key_cooldown = 6;
+            }
+        } else if (input->key_right) {
+            if (menu->selected_level < 129) {
+                menu->selected_level++;
+                bal_sfx_play(5);
+                menu_load_preview(menu, menu->selected_level);
+                menu->key_cooldown = 6;
+            }
+        } else if (input->key_down) {
+            if (menu->selected_level > 10) menu->selected_level -= 10;
+            else menu->selected_level = 1;
             bal_sfx_play(5);
             menu_load_preview(menu, menu->selected_level);
-        }
-    }
-    if (input->key_right) {
-        if (menu->selected_level < 129) {
-            menu->selected_level++;
+            menu->key_cooldown = 6;
+        } else if (input->key_up) {
+            if (menu->selected_level <= 119) menu->selected_level += 10;
+            else menu->selected_level = 129;
             bal_sfx_play(5);
             menu_load_preview(menu, menu->selected_level);
+            menu->key_cooldown = 6;
         }
-    }
-    if (input->key_down) {
-        if (menu->selected_level > 10) menu->selected_level -= 10;
-        else menu->selected_level = 1;
-        bal_sfx_play(5);
-        menu_load_preview(menu, menu->selected_level);
-    }
-    if (input->key_up) {
-        if (menu->selected_level <= 119) menu->selected_level += 10;
-        else menu->selected_level = 129;
-        bal_sfx_play(5);
-        menu_load_preview(menu, menu->selected_level);
     }
     if (input->key_space || input->key_1) {
         if (out_level) *out_level = menu->selected_level;

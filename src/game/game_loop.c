@@ -471,7 +471,8 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                 game->area_start_y = input->mouse_y;
             }
         }
-    } else if (input->mouse_right_clicked && input->mouse_y < vp_h - HUD_HEIGHT) {
+    }
+    if (input->mouse_right_clicked && input->mouse_y < vp_h - HUD_HEIGHT) {
         float world_mx = (float)(game->camera.x + input->mouse_x);
         float world_my = (float)(game->camera.y + input->mouse_y);
         for (int h_idx = 0; h_idx < MAX_HOUSES; h_idx++) {
@@ -484,7 +485,8 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                 return;
             }
         }
-    } else if (input->mouse_left_released) {
+    }
+    if (input->mouse_left_released) {
         if (game->is_area_selecting) {
             game->is_area_selecting = false;
             int sx1 = game->area_start_x < input->mouse_x ? game->area_start_x : input->mouse_x;

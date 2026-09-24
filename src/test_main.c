@@ -697,6 +697,61 @@ int main(void) {
     if (!sfx_init) sfx_init = bal_sfx_init("../baldies.exe");
     TEST_ASSERT(sfx_init, "Extract 68 WAV sound effects from baldies.exe PE resources");
 
+    // 7. Mouse Event Accumulation & Zero-Dropped-Clicks Verification
+    printf("\nTesting Mouse Event Latching & Responsiveness:\n");
+    {
+        // 7a. Menu button single-click responsiveness
+        menu_state_t test_menu;
+        menu_init(&test_menu);
+        test_menu.selected_level = 1;
+
+        int card_x = (640 - 550) / 2;
+        int next_btn_x = card_x + 434 + 15;
+        int row_y = 120 + 260 - 70; // 310
+
+        platform_input_t click_input = {0};
+        click_input.mouse_x = next_btn_x;
+        click_input.mouse_y = row_y + 10;
+        click_input.mouse_left_clicked = true;
+
+        uint32_t chosen_lvl = 0;
+        menu_update(&test_menu, &click_input, 640, 480, &chosen_lvl);
+        TEST_ASSERT(test_menu.selected_level == 2, "Menu NEXT LEVEL arrow advances level on the very first single click");
+
+        // 7b. Keyboard debounce in menu
+        platform_input_t key_input = {0};
+        key_input.key_right = true;
+        menu_update(&test_menu, &key_input, 640, 480, &chosen_lvl);
+        TEST_ASSERT(test_menu.selected_level == 3 && test_menu.key_cooldown == 6, "Keyboard arrow advances level and sets debounce cooldown");
+
+        // Immediate next tick with key still held down should be debounced
+        menu_update(&test_menu, &key_input, 640, 480, &chosen_lvl);
+        TEST_ASSERT(test_menu.selected_level == 3 && test_menu.key_cooldown == 5, "Debounce cooldown prevents runaway level increment on key hold");
+        menu_free(&test_menu);
+
+        // 7c. In-game fast click with both clicked & released in the same tick
+        game_state_t fast_click_game;
+        game_init(&fast_click_game, 1, 640, 480, false);
+        fast_click_game.hud_state.active_tool = TOOL_ROLE_SOLDIER;
+        fast_click_game.hud_state.selected_role = ROLE_SOLDIER;
+
+        // Position 1 friendly worker near (930, 750)
+        baldie_t *wk = entity_spawn(&fast_click_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 930.0f, 750.0f);
+        TEST_ASSERT(wk != NULL && wk->role == ROLE_WORKER, "Spawn worker for fast-click role conversion");
+
+        // Simulate click & release on the same tick directly over the unit
+        platform_input_t fast_input = {0};
+        fast_input.mouse_x = (int)(930 - fast_click_game.camera.x + 8);
+        fast_input.mouse_y = (int)(750 - fast_click_game.camera.y + 8);
+        fast_input.mouse_left_clicked = true;
+        fast_input.mouse_left_released = true;
+
+        game_tick(&fast_click_game, &fast_input, 640, 480);
+        TEST_ASSERT(wk->role == ROLE_SOLDIER, "Fast click (down+up same tick) converts unit role without failure");
+        TEST_ASSERT(!fast_click_game.is_area_selecting, "Fast click resets area selection state without getting stuck");
+        game_shutdown(&fast_click_game);
+    }
+
     // Summary
     printf("\n======================================================\n");
     printf("Tests run: %d | Passed: %d | Failed: %d\n", g_tests_run, g_tests_passed, g_tests_run - g_tests_passed);

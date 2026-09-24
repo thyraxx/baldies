@@ -12,8 +12,12 @@ static RECT g_windowed_rect = { 100, 100, 1380, 1060 };
 static int g_win_w = 1280;
 static int g_win_h = 960;
 static platform_input_t g_current_input = {0};
-static bool g_prev_left = false;
-static bool g_prev_right = false;
+static bool g_pending_left_clicked = false;
+static bool g_pending_left_released = false;
+static bool g_pending_right_clicked = false;
+static bool g_pending_right_released = false;
+static bool g_pending_escape_pressed = false;
+static bool g_pending_toggle_fullscreen = false;
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
@@ -31,23 +35,47 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             return 0;
         }
 
-        case WM_LBUTTONDOWN:
+        case WM_LBUTTONDOWN: {
+            int mx = (int)(short)LOWORD(lParam);
+            int my = (int)(short)HIWORD(lParam);
+            g_current_input.mouse_x = mx;
+            g_current_input.mouse_y = my;
             g_current_input.mouse_left_down = true;
+            g_pending_left_clicked = true;
             SetCapture(hWnd);
             return 0;
+        }
 
-        case WM_LBUTTONUP:
+        case WM_LBUTTONUP: {
+            int mx = (int)(short)LOWORD(lParam);
+            int my = (int)(short)HIWORD(lParam);
+            g_current_input.mouse_x = mx;
+            g_current_input.mouse_y = my;
             g_current_input.mouse_left_down = false;
+            g_pending_left_released = true;
             ReleaseCapture();
             return 0;
+        }
 
-        case WM_RBUTTONDOWN:
+        case WM_RBUTTONDOWN: {
+            int mx = (int)(short)LOWORD(lParam);
+            int my = (int)(short)HIWORD(lParam);
+            g_current_input.mouse_x = mx;
+            g_current_input.mouse_y = my;
             g_current_input.mouse_right_down = true;
+            g_pending_right_clicked = true;
             return 0;
+        }
 
-        case WM_RBUTTONUP:
+        case WM_RBUTTONUP: {
+            int mx = (int)(short)LOWORD(lParam);
+            int my = (int)(short)HIWORD(lParam);
+            g_current_input.mouse_x = mx;
+            g_current_input.mouse_y = my;
             g_current_input.mouse_right_down = false;
+            g_pending_right_released = true;
             return 0;
+        }
 
         case WM_KEYDOWN: {
             bool is_down = true;
@@ -56,7 +84,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                 case VK_RIGHT: case 'D': g_current_input.key_right = is_down; break;
                 case VK_UP:    case 'W': g_current_input.key_up = is_down; break;
                 case VK_DOWN:  case 'S': g_current_input.key_down = is_down; break;
-                case VK_ESCAPE:          g_current_input.key_escape = is_down; break;
+                case VK_ESCAPE:
+                    g_current_input.key_escape = is_down;
+                    if (!(lParam & 0x40000000)) {
+                        g_pending_escape_pressed = true;
+                    }
+                    break;
                 case VK_SPACE:           g_current_input.key_space = is_down; break;
                 case '0':                g_current_input.key_0 = is_down; break;
                 case 'H':                g_current_input.key_h = is_down; break;
@@ -67,7 +100,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                 case 'M':                g_current_input.key_m = is_down; break;
                 case VK_RETURN:
                     if (GetKeyState(VK_MENU) & 0x8000) {
-                        g_current_input.key_toggle_fullscreen = true;
+                        g_pending_toggle_fullscreen = true;
                     }
                     break;
             }
@@ -158,45 +191,59 @@ bool platform_init(const char *title, int width, int height, bool fullscreen) {
 }
 
 void platform_poll_events(platform_input_t *out_input) {
-    static bool g_prev_escape = false;
-    // Reset one-shot clicks and key presses
-    g_current_input.mouse_left_clicked = false;
-    g_current_input.mouse_right_clicked = false;
-    g_current_input.mouse_left_released = false;
-    g_current_input.key_escape_pressed = false;
-    g_current_input.key_toggle_fullscreen = false;
-
     MSG msg;
     while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
 
-    // Detect click edge
-    if (g_current_input.mouse_left_down && !g_prev_left) {
-        g_current_input.mouse_left_clicked = true;
-    }
-    if (!g_current_input.mouse_left_down && g_prev_left) {
-        g_current_input.mouse_left_released = true;
-    }
-    if (g_current_input.mouse_right_down && !g_prev_right) {
-        g_current_input.mouse_right_clicked = true;
-    }
-    g_prev_left = g_current_input.mouse_left_down;
-    g_prev_right = g_current_input.mouse_right_down;
-
-    // Detect escape key edge (single-shot press)
-    if (g_current_input.key_escape && !g_prev_escape) {
-        g_current_input.key_escape_pressed = true;
-    }
-    g_prev_escape = g_current_input.key_escape;
-
-    if (g_current_input.key_toggle_fullscreen) {
+    if (g_pending_toggle_fullscreen) {
         platform_toggle_fullscreen();
+        g_pending_toggle_fullscreen = false;
     }
 
     if (out_input) {
-        *out_input = g_current_input;
+        out_input->quit_requested = g_current_input.quit_requested;
+        out_input->mouse_x = g_current_input.mouse_x;
+        out_input->mouse_y = g_current_input.mouse_y;
+        out_input->mouse_left_down = g_current_input.mouse_left_down;
+        out_input->mouse_right_down = g_current_input.mouse_right_down;
+
+        out_input->key_left = g_current_input.key_left;
+        out_input->key_right = g_current_input.key_right;
+        out_input->key_up = g_current_input.key_up;
+        out_input->key_down = g_current_input.key_down;
+        out_input->key_escape = g_current_input.key_escape;
+        out_input->key_space = g_current_input.key_space;
+        out_input->key_0 = g_current_input.key_0;
+        out_input->key_h = g_current_input.key_h;
+        out_input->key_1 = g_current_input.key_1;
+        out_input->key_2 = g_current_input.key_2;
+        out_input->key_3 = g_current_input.key_3;
+        out_input->key_4 = g_current_input.key_4;
+        out_input->key_m = g_current_input.key_m;
+
+        // Accumulate edge triggers so clicks and releases are never dropped
+        if (g_pending_left_clicked) {
+            out_input->mouse_left_clicked = true;
+            g_pending_left_clicked = false;
+        }
+        if (g_pending_left_released) {
+            out_input->mouse_left_released = true;
+            g_pending_left_released = false;
+        }
+        if (g_pending_right_clicked) {
+            out_input->mouse_right_clicked = true;
+            g_pending_right_clicked = false;
+        }
+        if (g_pending_right_released) {
+            out_input->mouse_right_released = true;
+            g_pending_right_released = false;
+        }
+        if (g_pending_escape_pressed) {
+            out_input->key_escape_pressed = true;
+            g_pending_escape_pressed = false;
+        }
     }
 }
 

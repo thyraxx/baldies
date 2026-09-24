@@ -13,6 +13,7 @@ typedef struct {
     bool mouse_left_clicked;
     bool mouse_right_clicked;
     bool mouse_left_released;
+    bool mouse_right_released;
 
     // Movement & camera inputs
     bool key_left;

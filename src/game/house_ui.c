@@ -153,7 +153,7 @@ bool house_ui_update(house_ui_t *ui, game_state_t *game, const platform_input_t 
     }
 
     // Escape closes House UI
-    if (input->key_escape) {
+    if (input->key_escape_pressed) {
         house_ui_close(ui);
         return true;
     }
