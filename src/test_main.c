@@ -228,6 +228,14 @@ int main(void) {
     bal_sprites_draw_baldie(surf, &sprites, false, ROLE_SOLDIER, BALDIE_DIR_W, 0, 140, 80, &level_pal);
     TEST_ASSERT(true, "Draw multi-directional Baldies (North, South, East, West) to surface");
 
+    // Test Alpha-Blended Fill: Translucent fill blends foreground and background
+    surface_fill_rect(surf, 0, 0, 10, 10, 0xFFFF0000); // Solid red
+    surface_fill_rect(surf, 0, 0, 10, 10, 0x800000FF); // 50% translucent blue
+    uint32_t blended_pixel = surf->pixels[0];
+    uint8_t br = (blended_pixel >> 16) & 0xFF;
+    uint8_t bb = blended_pixel & 0xFF;
+    TEST_ASSERT(br > 100 && br < 150 && bb > 100 && bb < 150, "surface_fill_rect performs proper alpha blending");
+
     // Draw 2 enemy Hairies
     bal_sprites_draw_baldie(surf, &sprites, true, 0, BALDIE_DIR_S, 0, 180, 80, &level_pal);
 
@@ -541,6 +549,10 @@ int main(void) {
     memcpy(&bmp_hdr[2], &fsz, 4);
     memcpy(&bmp_hdr[18], &bw, 4);
     memcpy(&bmp_hdr[22], &bh, 4);
+    // Draw translucent selection box (Blue Builder mode) over units at (40, 60, 130, 50)
+    surface_fill_rect(surf, 40, 65, 130, 50, 0x403388FF);
+    surface_draw_rect(surf, 40, 65, 130, 50, 0xFF3388FF);
+
     // Draw HUD toolbar and cursor onto surf
     bal_cursor_t hud_cur;
     bal_cursor_init(&hud_cur);
@@ -549,7 +561,7 @@ int main(void) {
     test_game.hud_state.scientists_white = 1;
     test_game.hud_state.soldiers_green = 3;
     hud_render(surf, &test_game.hud_res, &test_game.hud_state, "GRASSLANDS", &level_pal, &hud_cur);
-    bal_cursor_draw(surf, &hud_cur, CURSOR_FRAME_AREA_SELECT, 250, 150, &level_pal);
+    bal_cursor_draw(surf, &hud_cur, CURSOR_FRAME_AREA_SELECT, 170, 115, &level_pal);
     bal_cursor_free(&hud_cur);
 
     FILE *bf = fopen("test_ingame_16x16.bmp", "wb");

@@ -143,10 +143,38 @@ void surface_fill_rect(surface_t *dest, int x, int y, int w, int h, uint32_t col
     int ex = (x + w > dw) ? dw : (x + w);
     int ey = (y + h > dh) ? dh : (y + h);
 
-    for (int ry = sy; ry < ey; ry++) {
-        uint32_t *row = &dest->pixels[ry * dw];
-        for (int rx = sx; rx < ex; rx++) {
-            row[rx] = color;
+    uint32_t a = (color >> 24) & 0xFF;
+    if (a == 0) return; // Fully transparent
+
+    if (a == 255) {
+        // Fast-path: fully opaque fill
+        for (int ry = sy; ry < ey; ry++) {
+            uint32_t *row = &dest->pixels[ry * dw];
+            for (int rx = sx; rx < ex; rx++) {
+                row[rx] = color;
+            }
+        }
+    } else {
+        // Alpha-blended fill
+        uint32_t inv_a = 255 - a;
+        uint32_t sr = (color >> 16) & 0xFF;
+        uint32_t sg = (color >> 8) & 0xFF;
+        uint32_t sb = color & 0xFF;
+
+        for (int ry = sy; ry < ey; ry++) {
+            uint32_t *row = &dest->pixels[ry * dw];
+            for (int rx = sx; rx < ex; rx++) {
+                uint32_t d = row[rx];
+                uint32_t dr = (d >> 16) & 0xFF;
+                uint32_t dg = (d >> 8) & 0xFF;
+                uint32_t db = d & 0xFF;
+
+                uint32_t r = (sr * a + dr * inv_a) / 255;
+                uint32_t g = (sg * a + dg * inv_a) / 255;
+                uint32_t b = (sb * a + db * inv_a) / 255;
+
+                row[rx] = (0xFF << 24) | (r << 16) | (g << 8) | b;
+            }
         }
     }
 }
