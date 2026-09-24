@@ -352,8 +352,11 @@ int main(void) {
     // Setup game state for grab & drop mechanics
     game_state_t test_game;
     memset(&test_game, 0, sizeof(test_game));
+    test_game.state = APP_STATE_PLAYING;
     test_game.map = map;
     test_game.tileset = tileset;
+    camera_init(&test_game.camera, 800, 650, map.width, map.height, 640, 480 - HUD_HEIGHT);
+    test_game.hud_state.active_tool = TOOL_HAND;
     house_manager_init(&test_game.house_mgr);
     entity_manager_init(&test_game.entity_mgr);
     house_t *th = house_create(&test_game.house_mgr, TEAM_PLAYER, HOUSE_HUT, 912, 704);
@@ -415,6 +418,83 @@ int main(void) {
     TEST_ASSERT(b_stuck->state == STATE_IDLE, "Blocked unit cleanly transitions to STATE_IDLE");
     TEST_ASSERT(b_stuck->anim_frame == 0, "Blocked unit stops animating and resets anim_frame to 0");
 
+    // Test G: Toolbar Tool Selection (Hand + 4 Roles)
+    int clk_hand = hud_handle_click(30, 480 - 20, 640, 480);
+    int clk_worker = hud_handle_click(120, 480 - 20, 640, 480);
+    int clk_builder = hud_handle_click(200, 480 - 20, 640, 480);
+    int clk_science = hud_handle_click(280, 480 - 20, 640, 480);
+    int clk_soldier = hud_handle_click(360, 480 - 20, 640, 480);
+    TEST_ASSERT(clk_hand == TOOL_HAND, "HUD click on Hand button selects TOOL_HAND (0)");
+    TEST_ASSERT(clk_worker == TOOL_ROLE_WORKER, "HUD click on Worker button selects TOOL_ROLE_WORKER (1)");
+    TEST_ASSERT(clk_builder == TOOL_ROLE_BUILDER, "HUD click on Builder button selects TOOL_ROLE_BUILDER (2)");
+    TEST_ASSERT(clk_science == TOOL_ROLE_SCIENTIST, "HUD click on Scientist button selects TOOL_ROLE_SCIENTIST (3)");
+    TEST_ASSERT(clk_soldier == TOOL_ROLE_SOLDIER, "HUD click on Soldier button selects TOOL_ROLE_SOLDIER (4)");
+
+    // Test H: Area Selection Role Conversion
+    // Spawn 3 Workers on grass
+    baldie_t *u1 = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 820.0f, 750.0f);
+    baldie_t *u2 = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 835.0f, 750.0f);
+    baldie_t *u3 = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 890.0f, 750.0f); // outside selection
+
+    // Switch tool to BUILDER
+    test_game.hud_state.active_tool = TOOL_ROLE_BUILDER;
+    test_game.hud_state.selected_role = ROLE_BUILDER;
+
+    // Simulate Area Selection Drag over u1 and u2 (world 810..850, 740..770)
+    int scr_x1 = (int)u1->x - test_game.camera.x - 5;
+    int scr_y1 = (int)u1->y - test_game.camera.y - 5;
+    int scr_x2 = (int)u2->x - test_game.camera.x + 15;
+    int scr_y2 = (int)u2->y - test_game.camera.y + 15;
+
+    platform_input_t sel_input = {0};
+    sel_input.mouse_x = scr_x1;
+    sel_input.mouse_y = scr_y1;
+    sel_input.mouse_left_clicked = true;
+    sel_input.mouse_left_down = true;
+    game_tick(&test_game, &sel_input, 640, 480);
+    TEST_ASSERT(test_game.is_area_selecting == true, "Selecting role changes mouse interaction to Area Selection");
+
+    // Mouse drag release over u1 and u2
+    sel_input.mouse_x = scr_x2;
+    sel_input.mouse_y = scr_y2;
+    sel_input.mouse_left_clicked = false;
+    sel_input.mouse_left_down = false;
+    sel_input.mouse_left_released = true;
+    game_tick(&test_game, &sel_input, 640, 480);
+
+    TEST_ASSERT(test_game.is_area_selecting == false, "Mouse release finishes area selection");
+    TEST_ASSERT(u1->role == ROLE_BUILDER, "Unit 1 inside selection converted to Builder");
+    TEST_ASSERT(u2->role == ROLE_BUILDER, "Unit 2 inside selection converted to Builder");
+    TEST_ASSERT(u3->role == ROLE_WORKER, "Unit 3 outside selection remains Worker");
+
+    // Test I: Single Click Area Selection converts single unit
+    test_game.hud_state.active_tool = TOOL_ROLE_SOLDIER;
+    test_game.hud_state.selected_role = ROLE_SOLDIER;
+    int u3_sx = (int)u3->x - test_game.camera.x + 8;
+    int u3_sy = (int)u3->y - test_game.camera.y + 8;
+
+    sel_input.mouse_x = u3_sx;
+    sel_input.mouse_y = u3_sy;
+    sel_input.mouse_left_clicked = true;
+    sel_input.mouse_left_down = true;
+    sel_input.mouse_left_released = false;
+    game_tick(&test_game, &sel_input, 640, 480);
+
+    sel_input.mouse_left_clicked = false;
+    sel_input.mouse_left_down = false;
+    sel_input.mouse_left_released = true;
+    game_tick(&test_game, &sel_input, 640, 480);
+    TEST_ASSERT(u3->role == ROLE_SOLDIER, "Single-clicking unit in Soldier mode converts unit to Soldier");
+
+    // Test J: Switching back to TOOL_HAND enables grab again
+    sel_input.mouse_x = 30;
+    sel_input.mouse_y = 480 - 20;
+    sel_input.mouse_left_clicked = true;
+    sel_input.mouse_left_down = true;
+    sel_input.mouse_left_released = false;
+    game_tick(&test_game, &sel_input, 640, 480);
+    TEST_ASSERT(test_game.hud_state.active_tool == TOOL_HAND, "Clicking Hand button on toolbar switches back to TOOL_HAND");
+
 
     // Generate tileset atlas image (40x32 tiles of 16x16 = 640x512)
     surface_t *atlas = surface_create(640, 512);
@@ -461,6 +541,17 @@ int main(void) {
     memcpy(&bmp_hdr[2], &fsz, 4);
     memcpy(&bmp_hdr[18], &bw, 4);
     memcpy(&bmp_hdr[22], &bh, 4);
+    // Draw HUD toolbar and cursor onto surf
+    bal_cursor_t hud_cur;
+    bal_cursor_init(&hud_cur);
+    test_game.hud_state.workers_red = 4;
+    test_game.hud_state.builders_blue = 2;
+    test_game.hud_state.scientists_white = 1;
+    test_game.hud_state.soldiers_green = 3;
+    hud_render(surf, &test_game.hud_res, &test_game.hud_state, "GRASSLANDS", &level_pal, &hud_cur);
+    bal_cursor_draw(surf, &hud_cur, CURSOR_FRAME_AREA_SELECT, 250, 150, &level_pal);
+    bal_cursor_free(&hud_cur);
+
     FILE *bf = fopen("test_ingame_16x16.bmp", "wb");
     if (bf) {
         fwrite(bmp_hdr, 1, 54, bf);

@@ -58,6 +58,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                 case VK_DOWN:  case 'S': g_current_input.key_down = is_down; break;
                 case VK_ESCAPE:          g_current_input.key_escape = is_down; break;
                 case VK_SPACE:           g_current_input.key_space = is_down; break;
+                case '0':                g_current_input.key_0 = is_down; break;
+                case 'H':                g_current_input.key_h = is_down; break;
                 case '1':                g_current_input.key_1 = is_down; break;
                 case '2':                g_current_input.key_2 = is_down; break;
                 case '3':                g_current_input.key_3 = is_down; break;
@@ -81,6 +83,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                 case VK_DOWN:  case 'S': g_current_input.key_down = is_down; break;
                 case VK_ESCAPE:          g_current_input.key_escape = is_down; break;
                 case VK_SPACE:           g_current_input.key_space = is_down; break;
+                case '0':                g_current_input.key_0 = is_down; break;
+                case 'H':                g_current_input.key_h = is_down; break;
                 case '1':                g_current_input.key_1 = is_down; break;
                 case '2':                g_current_input.key_2 = is_down; break;
                 case '3':                g_current_input.key_3 = is_down; break;

@@ -7,6 +7,7 @@
 #include "assets/bal_palette.h"
 
 #define CURSOR_FRAME_POINTER      0
+#define CURSOR_FRAME_AREA_SELECT  1
 #define CURSOR_FRAME_OPEN_HAND    4
 #define CURSOR_FRAME_GRAB_HAND    5
 #define CURSOR_FRAME_ENEMY_OPEN   11

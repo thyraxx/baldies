@@ -46,6 +46,10 @@ typedef struct {
     int grab_y;
     int held_anim_timer;
 
+    bool is_area_selecting;
+    int area_start_x;
+    int area_start_y;
+
     uint32_t current_level;
     bool running;
 } game_state_t;

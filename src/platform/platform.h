@@ -23,6 +23,8 @@ typedef struct {
     // Actions & shortcuts
     bool key_escape;
     bool key_space;
+    bool key_0;
+    bool key_h;
     bool key_1;
     bool key_2;
     bool key_3;
