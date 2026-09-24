@@ -13,6 +13,7 @@
 #include "hud.h"
 #include "entities.h"
 #include "house.h"
+#include "house_ui.h"
 #include "menu.h"
 #include "render/bal_cursor.h"
 
@@ -21,7 +22,7 @@ typedef enum {
     APP_STATE_PLAYING = 1
 } app_state_t;
 
-typedef struct {
+typedef struct game_state_s {
     app_state_t state;
     menu_state_t menu;
 
@@ -36,6 +37,7 @@ typedef struct {
     hud_resources_t hud_res;
     entity_manager_t entity_mgr;
     house_manager_t house_mgr;
+    house_ui_t house_ui;
 
     baldie_t *selected_unit;
     baldie_t *held_unit; // Unit currently picked up in the Hand

@@ -378,10 +378,13 @@ int main(void) {
     test_game.state = APP_STATE_PLAYING;
     test_game.map = map;
     test_game.tileset = tileset;
+    test_game.palette = level_pal;
+    bal_sprites_init(&test_game.sprites, 1);
     camera_init(&test_game.camera, 800, 650, map.width, map.height, 640, 480 - HUD_HEIGHT);
     test_game.hud_state.active_tool = TOOL_HAND;
     house_manager_init(&test_game.house_mgr);
     entity_manager_init(&test_game.entity_mgr);
+    house_ui_init(&test_game.house_ui);
     house_t *th = house_create(&test_game.house_mgr, TEAM_PLAYER, HOUSE_HUT, 912, 704);
     th->rooms[0] = 2;
 
@@ -518,6 +521,95 @@ int main(void) {
     game_tick(&test_game, &sel_input, 640, 480);
     TEST_ASSERT(test_game.hud_state.active_tool == TOOL_HAND, "Clicking Hand button on toolbar switches back to TOOL_HAND");
 
+    // Test K: House Interior UI & Eject / Hold Mechanics
+    printf("\nTesting House Interior UI & Eject/Hold Mechanics:\n");
+    house_t *ph = &test_game.house_mgr.houses[0];
+    ph->rooms[0] = 6; // 6 Workers
+    ph->rooms[1] = 3; // 3 Builders
+    ph->rooms[2] = 2; // 2 Scientists
+    ph->rooms[3] = 4; // 4 Soldiers
+
+    // Click on player house (world_x, world_y)
+    sel_input.mouse_x = (int)(ph->world_x - test_game.camera.x + 24);
+    sel_input.mouse_y = (int)(ph->world_y - test_game.camera.y + 24);
+    sel_input.mouse_left_clicked = true;
+    sel_input.mouse_left_down = true;
+    sel_input.mouse_left_released = false;
+    sel_input.key_escape = false;
+    game_tick(&test_game, &sel_input, 640, 480);
+
+    TEST_ASSERT(test_game.house_ui.is_open == true, "Clicking on player house opens House Interior UI");
+    TEST_ASSERT(test_game.house_ui.house_id == 0, "House UI opened for correct house ID");
+    TEST_ASSERT(ph->rooms[ROLE_WORKER] == 6 && ph->rooms[ROLE_BUILDER] == 3, "House UI tracks occupants for all roles");
+
+    // Click Room 0 (Workers) to eject 1 unit
+    int room0_x = test_game.house_ui.win_x + 10 + 97;
+    int room0_y = test_game.house_ui.win_y + 36 + 49;
+    sel_input.mouse_x = room0_x;
+    sel_input.mouse_y = room0_y;
+    sel_input.mouse_left_clicked = true;
+    sel_input.mouse_left_down = true;
+    game_tick(&test_game, &sel_input, 640, 480);
+    TEST_ASSERT(ph->rooms[ROLE_WORKER] == 5, "Clicking room ejects 1 unit out the front door (6 -> 5)");
+
+    // Holding mouse button on Room 0 speeds up leaving and ejects multiple units
+    sel_input.mouse_left_clicked = false;
+    sel_input.mouse_left_down = true;
+    for (int t = 0; t < 35; t++) {
+        game_tick(&test_game, &sel_input, 640, 480);
+    }
+    TEST_ASSERT(ph->rooms[ROLE_WORKER] < 5, "Holding mouse button speeds up leaving and ejects multiple units");
+
+    // Dropping held unit into Room 1 (Builders)
+    baldie_t *carried = entity_spawn(&test_game.entity_mgr, TEAM_PLAYER, ROLE_WORKER, 800.0f, 700.0f);
+    test_game.held_unit = carried;
+    int init_builders = ph->rooms[ROLE_BUILDER];
+
+    int room1_x = test_game.house_ui.win_x + 216 + 97;
+    int room1_y = test_game.house_ui.win_y + 36 + 49;
+    sel_input.mouse_x = room1_x;
+    sel_input.mouse_y = room1_y;
+    sel_input.mouse_left_clicked = true;
+    sel_input.mouse_left_down = true;
+    game_tick(&test_game, &sel_input, 640, 480);
+
+    TEST_ASSERT(test_game.held_unit == NULL, "Held Baldie placed into house room via House UI");
+    TEST_ASSERT(ph->rooms[ROLE_BUILDER] == init_builders + 1, "Builder room occupant count incremented by 1");
+
+    // Pressing Escape closes House UI
+    sel_input.mouse_left_clicked = false;
+    sel_input.mouse_left_down = false;
+    sel_input.key_escape = true;
+    game_tick(&test_game, &sel_input, 640, 480);
+    TEST_ASSERT(test_game.house_ui.is_open == false, "Pressing Escape closes House UI");
+    TEST_ASSERT(test_game.state == APP_STATE_PLAYING, "Escape closes House UI without quitting game");
+
+    // Render verification of House Interior UI
+    house_ui_open(&test_game.house_ui, 0);
+    surface_t *hui_surf = surface_create(640, 480);
+    game_render(&test_game, hui_surf);
+    TEST_ASSERT(hui_surf != NULL && hui_surf->pixels != NULL, "Render game frame with House Interior UI active");
+
+    uint8_t hbmp_hdr[54] = {
+        'B', 'M',  0, 0, 0, 0,  0, 0, 0, 0,  54, 0, 0, 0,
+        40, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 0, 32, 0,
+        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0
+    };
+    uint32_t hfsz = 54 + 640 * 480 * 4;
+    int32_t hbw = 640, hbh = -480;
+    memcpy(&hbmp_hdr[2], &hfsz, 4);
+    memcpy(&hbmp_hdr[18], &hbw, 4);
+    memcpy(&hbmp_hdr[22], &hbh, 4);
+    FILE *hbf = fopen("test_house_ui.bmp", "wb");
+    if (hbf) {
+        fwrite(hbmp_hdr, 1, 54, hbf);
+        fwrite(hui_surf->pixels, 4, 640 * 480, hbf);
+        fclose(hbf);
+    }
+
+    house_ui_close(&test_game.house_ui);
+    surface_destroy(hui_surf);
+
 
     // Generate tileset atlas image (40x32 tiles of 16x16 = 640x512)
     surface_t *atlas = surface_create(640, 512);
@@ -603,6 +695,7 @@ int main(void) {
     // Cleanup
     bal_tileset_free(&tileset);
     bal_map_free(&map);
+    bal_sprites_free(&test_game.sprites);
     bal_sfx_shutdown();
 
     return (g_tests_passed == g_tests_run) ? 0 : 1;

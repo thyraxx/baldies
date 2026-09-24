@@ -29,6 +29,9 @@ bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h, bool 
     // Initialize SFX
     bal_sfx_init("baldies.exe");
 
+    // Initialize House UI
+    house_ui_init(&game->house_ui);
+
     if (start_in_menu) {
         game->state = APP_STATE_MENU;
         return true;
@@ -95,6 +98,7 @@ bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h)
     // 7. Initialize Entities & Houses
     entity_manager_init(&game->entity_mgr);
     house_manager_init(&game->house_mgr);
+    house_ui_close(&game->house_ui);
     game->selected_unit = NULL;
 
     // Spawn player base house at authentic level position
@@ -257,6 +261,29 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
         return;
     }
 
+    // 0. Update House Interior Dialog if open
+    if (game->house_ui.is_open) {
+        bool intercepted = house_ui_update(&game->house_ui, game, input, vp_w, vp_h);
+        if (intercepted) {
+            // World entities and houses continue updating in the background
+            house_update_all(&game->house_mgr, &game->entity_mgr);
+            entity_update_all(&game->entity_mgr, &game->map, &game->tileset, &game->house_mgr);
+
+            // Keep HUD role population counters up to date
+            uint32_t counts[4] = {0, 0, 0, 0};
+            for (int i = 0; i < MAX_BALDIES; i++) {
+                if (game->entity_mgr.units[i].active && game->entity_mgr.units[i].team == TEAM_PLAYER) {
+                    counts[game->entity_mgr.units[i].role]++;
+                }
+            }
+            game->hud_state.workers_red = counts[ROLE_WORKER];
+            game->hud_state.builders_blue = counts[ROLE_BUILDER];
+            game->hud_state.scientists_white = counts[ROLE_SCIENTIST];
+            game->hud_state.soldiers_green = counts[ROLE_SOLDIER];
+            return;
+        }
+    }
+
     // Return to menu on Escape if in playing state
     if (input->key_escape) {
         bal_midi_stop();
@@ -320,6 +347,20 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                     // Drop / place the held Baldie!
                     game_drop_held_unit(game, world_mx, world_my);
                 } else {
+                    // Check if clicking directly on a friendly house
+                    house_t *clicked_house = NULL;
+                    int clicked_house_idx = -1;
+                    for (int h_idx = 0; h_idx < MAX_HOUSES; h_idx++) {
+                        house_t *h = &game->house_mgr.houses[h_idx];
+                        if (!h->active || h->team != TEAM_PLAYER) continue;
+                        if (world_mx >= (float)h->world_x && world_mx < (float)(h->world_x + 48) &&
+                            world_my >= (float)h->world_y && world_my < (float)(h->world_y + 48)) {
+                            clicked_house = h;
+                            clicked_house_idx = h_idx;
+                            break;
+                        }
+                    }
+
                     // Hand is empty: check if clicking on a friendly Baldie to pick up
                     baldie_t *closest = NULL;
                     float min_dist = 22.0f; // Click radius
@@ -333,7 +374,25 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                         }
                     }
 
-                    if (closest) {
+                    if (closest && min_dist <= 12.0f) {
+                        // Pick up Baldie into Hand!
+                        game->held_unit = closest;
+                        closest->state = STATE_CARRIED;
+                        closest->waypoint_count = 0;
+                        closest->waypoint_index = 0;
+                        closest->target_x = closest->x;
+                        closest->target_y = closest->y;
+                        closest->anim_frame = 0;
+                        closest->anim_timer = 0;
+                        game->grab_x = input->mouse_x;
+                        game->grab_y = input->mouse_y;
+                        game->selected_unit = closest;
+                        bal_sfx_play(2); // Confirmation voice
+                    } else if (clicked_house) {
+                        // Open House Interior UI!
+                        house_ui_open(&game->house_ui, clicked_house_idx);
+                        bal_sfx_play(5);
+                    } else if (closest) {
                         // Pick up Baldie into Hand!
                         game->held_unit = closest;
                         closest->state = STATE_CARRIED;
@@ -396,6 +455,19 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                 game->area_start_y = input->mouse_y;
             }
         }
+    } else if (input->mouse_right_clicked && input->mouse_y < vp_h - HUD_HEIGHT) {
+        float world_mx = (float)(game->camera.x + input->mouse_x);
+        float world_my = (float)(game->camera.y + input->mouse_y);
+        for (int h_idx = 0; h_idx < MAX_HOUSES; h_idx++) {
+            house_t *h = &game->house_mgr.houses[h_idx];
+            if (!h->active || h->team != TEAM_PLAYER) continue;
+            if (world_mx >= (float)h->world_x && world_mx < (float)(h->world_x + 48) &&
+                world_my >= (float)h->world_y && world_my < (float)(h->world_y + 48)) {
+                house_ui_open(&game->house_ui, h_idx);
+                bal_sfx_play(5);
+                return;
+            }
+        }
     } else if (input->mouse_left_released) {
         if (game->is_area_selecting) {
             game->is_area_selecting = false;
@@ -411,6 +483,19 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
 
             // Single click without drag: expand to a 24x24 box around cursor
             if ((sx2 - sx1) < 6 && (sy2 - sy1) < 6) {
+                float c_world_mx = (float)(game->camera.x + input->mouse_x);
+                float c_world_my = (float)(game->camera.y + input->mouse_y);
+                for (int h_idx = 0; h_idx < MAX_HOUSES; h_idx++) {
+                    house_t *h = &game->house_mgr.houses[h_idx];
+                    if (!h->active || h->team != TEAM_PLAYER) continue;
+                    if (c_world_mx >= (float)h->world_x && c_world_mx < (float)(h->world_x + 48) &&
+                        c_world_my >= (float)h->world_y && c_world_my < (float)(h->world_y + 48)) {
+                        house_ui_open(&game->house_ui, h_idx);
+                        bal_sfx_play(5);
+                        return;
+                    }
+                }
+
                 wx1 = (float)(game->camera.x + input->mouse_x - 12);
                 wx2 = (float)(game->camera.x + input->mouse_x + 12);
                 wy1 = (float)(game->camera.y + input->mouse_y - 12);
@@ -540,6 +625,11 @@ void game_render(game_state_t *game, surface_t *dest) {
 
     // 7. Draw HUD Interface (anchored at bottom)
     hud_render(dest, &game->hud_res, &game->hud_state, game->map.name, &game->palette, &game->cursor);
+
+    // 7.5. Draw House Interior Dialog (if open)
+    if (game->house_ui.is_open) {
+        house_ui_render(&game->house_ui, game, dest);
+    }
 
     // 8. Draw Cursor (Hand or Area Selection Reticle)
     if (game->cursor.data) {

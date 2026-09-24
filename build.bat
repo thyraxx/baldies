@@ -33,7 +33,7 @@ set "LIBS=gdi32.lib user32.lib winmm.lib shell32.lib"
 
 set "ASSET_SRCS=src\assets\asset_path.c src\assets\bal_palette.c src\assets\bal_tiles.c src\assets\bal_map.c src\assets\bal_sprites.c src\assets\bal_sfx.c src\assets\bal_midi.c"
 set "RENDER_SRCS=src\render\surface.c src\render\map_renderer.c src\render\bal_cursor.c"
-set "GAME_SRCS=src\game\camera.c src\game\hud.c src\game\menu.c src\game\pathfind.c src\game\entities.c src\game\house.c src\game\game_loop.c"
+set "GAME_SRCS=src\game\camera.c src\game\hud.c src\game\menu.c src\game\pathfind.c src\game\entities.c src\game\house.c src\game\house_ui.c src\game\game_loop.c"
 set "PLATFORM_SRCS=src\platform\platform_win32.c"
 
 

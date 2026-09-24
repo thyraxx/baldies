@@ -30,8 +30,10 @@ set(GAME_SOURCES
     src/game/camera.c
     src/game/hud.c
     src/game/menu.c
+    src/game/pathfind.c
     src/game/entities.c
     src/game/house.c
+    src/game/house_ui.c
     src/game/game_loop.c
 )
 
