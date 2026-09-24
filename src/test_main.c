@@ -243,12 +243,36 @@ int main(void) {
     // Test Main Menu cursor rendering with level_pal palette
     menu_state_t test_menu;
     menu_init(&test_menu);
+    TEST_ASSERT(test_menu.preview_surf != NULL && strcmp(test_menu.preview_theme, "GRASSLANDS") == 0, "Level 1 preview generates Grassland island map");
+
+    // Test Theme Previews
+    menu_load_preview(&test_menu, 26);
+    TEST_ASSERT(test_menu.preview_surf != NULL && strcmp(test_menu.preview_theme, "ICE & SNOW") == 0, "Level 26 preview generates Ice realm map");
+    menu_load_preview(&test_menu, 51);
+    TEST_ASSERT(test_menu.preview_surf != NULL && strcmp(test_menu.preview_theme, "DESERT DUNES") == 0, "Level 51 preview generates Desert map");
+    menu_load_preview(&test_menu, 1); // switch back to level 1
+
+    // Test menu button interactions
+    platform_input_t menu_input;
+    memset(&menu_input, 0, sizeof(menu_input));
+    // Click NEXT > button at (450, 320)
+    menu_input.mouse_x = 450;
+    menu_input.mouse_y = 320;
+    menu_input.mouse_left_clicked = true;
+    menu_update(&test_menu, &menu_input, 640, 480, NULL);
+    TEST_ASSERT(test_menu.selected_level == 2, "Clicking NEXT button advances to Level 2");
+
+    // Click START MISSION button at (300, 370)
+    menu_input.mouse_x = 300;
+    menu_input.mouse_y = 370;
+    uint32_t chosen_lvl = 0;
+    menu_action_t act = menu_update(&test_menu, &menu_input, 640, 480, &chosen_lvl);
+    TEST_ASSERT(act == MENU_ACTION_START_LEVEL && chosen_lvl == 2, "Clicking START MISSION returns MENU_ACTION_START_LEVEL for Level 2");
+
+    test_menu.selected_level = 1;
+    menu_load_preview(&test_menu, 1);
     surface_t *menu_surf = surface_create(640, 480);
     menu_render(&test_menu, menu_surf);
-    // Draw Frame 4 (Open Hand) at (320, 200) and Frame 5 (Grab Hand) at (360, 200)
-    bal_cursor_draw(menu_surf, &cursor, CURSOR_FRAME_OPEN_HAND, 320, 200, &level_pal);
-    bal_cursor_draw(menu_surf, &cursor, CURSOR_FRAME_GRAB_HAND, 360, 200, &level_pal);
-    TEST_ASSERT(true, "Render authentic Hand cursor on Main Menu screen");
 
     // Save test_menu_with_cursor.bmp
     uint8_t mbmp_hdr[54] = {

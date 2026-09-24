@@ -33,4 +33,8 @@ void surface_blit_paletted_sub(surface_t *dest,
 void surface_draw_rect(surface_t *dest, int x, int y, int w, int h, uint32_t color);
 void surface_fill_rect(surface_t *dest, int x, int y, int w, int h, uint32_t color);
 
+void surface_draw_char(surface_t *dest, int x, int y, char c, uint32_t color, int scale);
+void surface_draw_text(surface_t *dest, int x, int y, const char *text, uint32_t color, int scale);
+void surface_draw_text_shadow(surface_t *dest, int x, int y, const char *text, uint32_t color, uint32_t shadow_color, int scale);
+
 #endif // SURFACE_H
