@@ -28,5 +28,5 @@ baldies_test.exe
 *.obj
 *.pdb
 *.ilk
-
-
+*.bmp
+*.png

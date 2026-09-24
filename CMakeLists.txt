@@ -16,6 +16,7 @@ set(ASSET_SOURCES
     src/assets/bal_palette.c
     src/assets/bal_tiles.c
     src/assets/bal_map.c
+    src/assets/bal_sprites.c
     src/assets/bal_sfx.c
     src/assets/bal_midi.c
 )
@@ -28,6 +29,7 @@ set(RENDER_SOURCES
 set(GAME_SOURCES
     src/game/camera.c
     src/game/hud.c
+    src/game/menu.c
     src/game/entities.c
     src/game/house.c
     src/game/game_loop.c

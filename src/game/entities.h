@@ -48,9 +48,11 @@ typedef struct {
     uint32_t count;
 } entity_manager_t;
 
+#include "assets/bal_sprites.h"
+
 void entity_manager_init(entity_manager_t *mgr);
 baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t role, float x, float y);
 void entity_update_all(entity_manager_t *mgr);
-void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette);
+void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites);
 
 #endif // ENTITIES_H

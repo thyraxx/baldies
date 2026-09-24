@@ -6,7 +6,7 @@ void house_manager_init(house_manager_t *mgr) {
     memset(mgr, 0, sizeof(house_manager_t));
 }
 
-house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tier, int tile_x, int tile_y) {
+house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tier, int world_x, int world_y) {
     if (!mgr) return NULL;
 
     for (int i = 0; i < MAX_HOUSES; i++) {
@@ -15,8 +15,8 @@ house_t* house_create(house_manager_t *mgr, baldie_team_t team, house_tier_t tie
             h->active = true;
             h->team = team;
             h->tier = tier;
-            h->tile_x = tile_x;
-            h->tile_y = tile_y;
+            h->world_x = world_x;
+            h->world_y = world_y;
             h->breed_timer = 0;
             memset(h->rooms, 0, sizeof(h->rooms));
             mgr->count++;
@@ -42,8 +42,8 @@ void house_update_all(house_manager_t *mgr, entity_manager_t *entity_mgr) {
             if (h->breed_timer >= breed_threshold) {
                 h->breed_timer = 0;
                 // Birth a new Baldie!
-                float spawn_x = (float)(h->tile_x * 32 + 16);
-                float spawn_y = (float)(h->tile_y * 32 + 40);
+                float spawn_x = (float)(h->world_x + 16);
+                float spawn_y = (float)(h->world_y + 40);
                 entity_spawn(entity_mgr, h->team, ROLE_WORKER, spawn_x, spawn_y);
             }
         }
@@ -57,8 +57,9 @@ void house_render_all(const house_manager_t *mgr, surface_t *dest, int camera_x,
         const house_t *h = &mgr->houses[i];
         if (!h->active) continue;
 
-        int sx = (h->tile_x * 32) - camera_x;
-        int sy = (h->tile_y * 32) - camera_y;
+        int sx = h->world_x - camera_x;
+        int sy = h->world_y - camera_y;
+
 
         int house_w = 48;
         int house_h = 48;

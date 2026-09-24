@@ -6,8 +6,9 @@ void camera_init(camera_t *cam, int start_x, int start_y, int map_w_tiles, int m
     cam->y = start_y;
     cam->speed = 12; // Pixels per frame
 
-    int total_map_w = map_w_tiles * 32;
-    int total_map_h = map_h_tiles * 32;
+    int total_map_w = map_w_tiles * 16;
+    int total_map_h = map_h_tiles * 16;
+
 
     cam->max_x = (total_map_w > vp_w) ? (total_map_w - vp_w) : 0;
     cam->max_y = (total_map_h > vp_h) ? (total_map_h - vp_h) : 0;

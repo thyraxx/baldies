@@ -23,12 +23,13 @@ bool bal_palette_load_from_memory(const uint8_t *data, size_t size, bal_palette_
                                ((uint32_t)g << 8)  |
                                ((uint32_t)b);
 
-        // 0xFFBBGGRR (BGRA for Win32 Little-Endian DIB 0x00RRGGBB in memory)
+        // In memory on x86 little-endian: Byte 0 = B, Byte 1 = G, Byte 2 = R, Byte 3 = 0xFF
         out_palette->bgra[i] = ((uint32_t)0xFF << 24) |
-                               ((uint32_t)b << 16) |
+                               ((uint32_t)r << 16) |
                                ((uint32_t)g << 8)  |
-                               ((uint32_t)r);
+                               ((uint32_t)b);
     }
+
 
     return true;
 }

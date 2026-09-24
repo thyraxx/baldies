@@ -7,11 +7,41 @@
 #include <string.h>
 #include <math.h>
 
-bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h) {
+bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h, bool start_in_menu) {
     if (!game) return false;
     memset(game, 0, sizeof(game_state_t));
-    game->current_level = level_num;
     game->running = true;
+
+    // Initialize Menu
+    menu_init(&game->menu);
+    if (level_num >= 1 && level_num <= 129) {
+        game->menu.selected_level = level_num;
+    }
+
+    // Initialize HUD resources once
+    hud_init(&game->hud_res);
+
+    // Initialize SFX
+    bal_sfx_init("baldies.exe");
+
+    if (start_in_menu) {
+        game->state = APP_STATE_MENU;
+        return true;
+    } else {
+        return game_load_level(game, level_num, vp_w, vp_h);
+    }
+}
+
+bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h) {
+    if (!game) return false;
+
+    // Free previous level resources if any
+    bal_tileset_free(&game->tileset);
+    bal_map_free(&game->map);
+    bal_sprites_free(&game->sprites);
+
+    game->current_level = level_num;
+    uint32_t theme = ((level_num - 1) / 25) % 5 + 1;
 
     // 1. Load Map
     if (!bal_map_load(level_num, &game->map)) {
@@ -21,9 +51,8 @@ bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h) {
 
     // 2. Load World Palette
     char pal_path[64];
-    snprintf(pal_path, sizeof(pal_path), "BALS/LEV%uPAL.BAL", (level_num > 5 ? 1 : level_num));
+    snprintf(pal_path, sizeof(pal_path), "BALS/LEV%uPAL.BAL", theme);
     if (!bal_palette_load(pal_path, &game->palette)) {
-        // Fallback to LEV1PAL
         if (!bal_palette_load("BALS/LEV1PAL.BAL", &game->palette)) {
             printf("[ERROR] Failed to load world palette\n");
             return false;
@@ -40,64 +69,90 @@ bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h) {
         }
     }
 
-    // 4. Initialize Camera
+    // 4. Load Sprites
+    bal_sprites_init(&game->sprites, theme);
+
+    // 5. Initialize Camera
     camera_init(&game->camera, 
                 game->map.start_cam_x, 
                 game->map.start_cam_y, 
                 game->map.width, 
                 game->map.height, 
                 vp_w, 
-                vp_h - 32);
+                vp_h - HUD_HEIGHT);
 
-    // 5. Initialize HUD
-    hud_init(&game->hud_res);
+    // 6. Reset HUD State
     game->hud_state.selected_role = 0; // Worker
     game->hud_state.minimap_visible = true;
 
-    // 6. Initialize Entities & Houses
+    // 7. Initialize Entities & Houses
     entity_manager_init(&game->entity_mgr);
     house_manager_init(&game->house_mgr);
+    game->selected_unit = NULL;
 
-    // Spawn player base house near start camera
-    int base_tx = (game->map.start_cam_x + 160) / 32;
-    int base_ty = (game->map.start_cam_y + 160) / 32;
-    house_t *player_base = house_create(&game->house_mgr, TEAM_PLAYER, HOUSE_HUT, base_tx, base_ty);
+    // Spawn player base house at authentic level position
+    int p_base_x = (int)game->map.player_base_x;
+    int p_base_y = (int)game->map.player_base_y;
+
+    house_t *player_base = house_create(&game->house_mgr, TEAM_PLAYER, HOUSE_HUT, p_base_x, p_base_y);
     if (player_base) {
         player_base->rooms[0] = 2; // 2 breeding workers inside
     }
 
-    // Spawn initial player Baldies
+    // Spawn initial player Baldies outside the base
     for (int i = 0; i < 4; i++) {
-        float sx = (float)(base_tx * 32 + (i * 24) - 20);
-        float sy = (float)(base_ty * 32 + 50);
+        float sx = (float)(p_base_x + 10 + (i * 20));
+        float sy = (float)(p_base_y + 48);
         baldie_role_t role = (baldie_role_t)(i % 4);
         entity_spawn(&game->entity_mgr, TEAM_PLAYER, role, sx, sy);
     }
 
-    // Spawn enemy base & Hairies further away
-    int enemy_tx = base_tx + 30;
-    int enemy_ty = base_ty + 20;
-    if (enemy_tx < (int)game->map.width && enemy_ty < (int)game->map.height) {
-        house_create(&game->house_mgr, TEAM_ENEMY, HOUSE_HUT, enemy_tx, enemy_ty);
-        for (int i = 0; i < 3; i++) {
-            entity_spawn(&game->entity_mgr, TEAM_ENEMY, ROLE_WORKER, (float)(enemy_tx * 32 + i * 20), (float)(enemy_ty * 32 + 50));
-        }
+    // Spawn enemy base & Hairies at authentic enemy island position
+    int e_base_x = (int)game->map.enemy_base_x;
+    int e_base_y = (int)game->map.enemy_base_y;
+
+    house_create(&game->house_mgr, TEAM_ENEMY, HOUSE_HUT, e_base_x, e_base_y);
+    for (int i = 0; i < 3; i++) {
+        entity_spawn(&game->entity_mgr, TEAM_ENEMY, ROLE_WORKER, (float)(e_base_x + 10 + i * 20), (float)(e_base_y + 48));
     }
 
-    // 7. Audio & Music
-    bal_sfx_init("baldies.exe");
+
+    // 8. Music
     char midi_path[64];
-    snprintf(midi_path, sizeof(midi_path), "BALS/LEV%uMIDI.BAL", (level_num > 5 ? 1 : level_num));
+    snprintf(midi_path, sizeof(midi_path), "BALS/LEV%uMIDI.BAL", theme);
     bal_midi_play(midi_path, true);
 
+    game->state = APP_STATE_PLAYING;
     return true;
 }
 
 void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int vp_h) {
     if (!game || !input) return;
 
+    if (game->state == APP_STATE_MENU) {
+        if (input->key_escape) {
+            game->running = false;
+            return;
+        }
+        uint32_t chosen_level = 1;
+        menu_action_t act = menu_update(&game->menu, input, vp_w, vp_h, &chosen_level);
+        if (act == MENU_ACTION_START_LEVEL) {
+            game_load_level(game, chosen_level, vp_w, vp_h);
+        } else if (act == MENU_ACTION_QUIT) {
+            game->running = false;
+        }
+        return;
+    }
+
+    // Return to menu on Escape if in playing state
+    if (input->key_escape) {
+        bal_midi_stop();
+        game->state = APP_STATE_MENU;
+        return;
+    }
+
     // 1. Camera update
-    camera_update(&game->camera, input, vp_w, vp_h - 32);
+    camera_update(&game->camera, input, vp_w, vp_h - HUD_HEIGHT);
 
     // 2. Role selection shortcuts (Keys 1-4)
     if (input->key_1) game->hud_state.selected_role = 0;
@@ -112,15 +167,11 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
 
     // 3. Mouse interactions
     if (input->mouse_left_clicked) {
-        int hud_y = vp_h - 32;
-        if (input->mouse_y >= hud_y) {
-            // Clicked inside HUD: check role boxes
-            if (input->mouse_x >= 35 && input->mouse_x <= 75) game->hud_state.selected_role = 0;
-            else if (input->mouse_x >= 135 && input->mouse_x <= 175) game->hud_state.selected_role = 1;
-            else if (input->mouse_x >= 235 && input->mouse_x <= 275) game->hud_state.selected_role = 2;
-            else if (input->mouse_x >= 335 && input->mouse_x <= 375) game->hud_state.selected_role = 3;
+        int clicked_role = hud_handle_click(input->mouse_x, input->mouse_y, vp_w, vp_h);
+        if (clicked_role >= 0) {
+            game->hud_state.selected_role = (uint32_t)clicked_role;
             bal_sfx_play(5); // UI click
-        } else {
+        } else if (input->mouse_y < vp_h - HUD_HEIGHT) {
             // Clicked on game world: select nearest Baldie or assign order
             float world_mx = (float)(game->camera.x + input->mouse_x);
             float world_my = (float)(game->camera.y + input->mouse_y);
@@ -186,6 +237,11 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
 void game_render(game_state_t *game, surface_t *dest) {
     if (!game || !dest) return;
 
+    if (game->state == APP_STATE_MENU) {
+        menu_render(&game->menu, dest);
+        return;
+    }
+
     int vp_w = (int)dest->width;
     int vp_h = (int)dest->height;
 
@@ -195,8 +251,8 @@ void game_render(game_state_t *game, surface_t *dest) {
     // 2. Draw Houses
     house_render_all(&game->house_mgr, dest, game->camera.x, game->camera.y);
 
-    // 3. Draw Baldies & Hairies
-    entity_render_all(&game->entity_mgr, dest, game->camera.x, game->camera.y, &game->palette);
+    // 3. Draw Baldies & Hairies (using authentic sprites!)
+    entity_render_all(&game->entity_mgr, dest, game->camera.x, game->camera.y, &game->palette, &game->sprites);
 
     // 4. Draw Selected Unit Indicator
     if (game->selected_unit && game->selected_unit->active) {
@@ -209,18 +265,21 @@ void game_render(game_state_t *game, surface_t *dest) {
     if (game->hud_state.minimap_visible) {
         int mm_x = vp_w - (int)game->map.width - 12;
         int mm_y = 12;
-        map_renderer_draw_minimap(dest, &game->map, &game->tileset, &game->palette, mm_x, mm_y, game->camera.x, game->camera.y, vp_w, vp_h - 32);
+        map_renderer_draw_minimap(dest, &game->map, &game->tileset, &game->palette, mm_x, mm_y, game->camera.x, game->camera.y, vp_w, vp_h - HUD_HEIGHT);
     }
 
     // 6. Draw HUD Interface (anchored at bottom)
-    hud_render(dest, &game->hud_res, &game->hud_state, &game->palette);
+    hud_render(dest, &game->hud_res, &game->hud_state, game->map.name, &game->palette);
 }
 
 void game_shutdown(game_state_t *game) {
     if (!game) return;
     bal_midi_stop();
     bal_sfx_shutdown();
+    menu_free(&game->menu);
+    bal_sprites_free(&game->sprites);
     hud_free(&game->hud_res);
     bal_tileset_free(&game->tileset);
     bal_map_free(&game->map);
 }
+

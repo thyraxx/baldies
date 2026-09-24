@@ -8,15 +8,26 @@
 #include "assets/bal_palette.h"
 #include "assets/bal_tiles.h"
 #include "assets/bal_map.h"
+#include "assets/bal_sprites.h"
 #include "camera.h"
 #include "hud.h"
 #include "entities.h"
 #include "house.h"
+#include "menu.h"
+
+typedef enum {
+    APP_STATE_MENU = 0,
+    APP_STATE_PLAYING = 1
+} app_state_t;
 
 typedef struct {
+    app_state_t state;
+    menu_state_t menu;
+
     bal_palette_t palette;
     bal_tileset_t tileset;
     bal_map_t map;
+    bal_sprites_t sprites;
 
     camera_t camera;
     hud_state_t hud_state;
@@ -29,9 +40,11 @@ typedef struct {
     bool running;
 } game_state_t;
 
-bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h);
+bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h, bool start_in_menu);
+bool game_load_level(game_state_t *game, uint32_t level_num, int vp_w, int vp_h);
 void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int vp_h);
 void game_render(game_state_t *game, surface_t *dest);
 void game_shutdown(game_state_t *game);
 
 #endif // GAME_LOOP_H
+

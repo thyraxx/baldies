@@ -52,8 +52,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    bool start_in_menu = (argc < 4);
+
     game_state_t game;
-    if (!game_init(&game, start_level, win_w, win_h)) {
+    if (!game_init(&game, start_level, win_w, win_h, start_in_menu)) {
         fprintf(stderr, "[ERROR] Failed to initialize game state!\n");
         surface_destroy(render_surface);
         platform_shutdown();
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
 
     platform_input_t input = {0};
 
-    while (!input.quit_requested && !input.key_escape) {
+    while (!input.quit_requested && game.running) {
         uint64_t frame_start = platform_get_time_ms();
 
         // 1. Poll input events
@@ -78,8 +80,9 @@ int main(int argc, char **argv) {
         if (cur_w > 0 && cur_h > 0 && (cur_w != (int)render_surface->width || cur_h != (int)render_surface->height)) {
             surface_destroy(render_surface);
             render_surface = surface_create((uint32_t)cur_w, (uint32_t)cur_h);
-            game.camera.max_x = ((int)game.map.width * 32 > cur_w) ? ((int)game.map.width * 32 - cur_w) : 0;
-            game.camera.max_y = ((int)game.map.height * 32 > (cur_h - 32)) ? ((int)game.map.height * 32 - (cur_h - 32)) : 0;
+            game.camera.max_x = ((int)game.map.width * 16 > cur_w) ? ((int)game.map.width * 16 - cur_w) : 0;
+            game.camera.max_y = ((int)game.map.height * 16 > (cur_h - HUD_HEIGHT)) ? ((int)game.map.height * 16 - (cur_h - HUD_HEIGHT)) : 0;
+
         }
 
         // 2. Fixed-rate 30 TPS simulation updates

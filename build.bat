@@ -31,10 +31,11 @@ if not exist obj mkdir obj
 set "CFLAGS=/nologo /O2 /W3 /MD /utf-8 /D_CRT_SECURE_NO_WARNINGS /Isrc"
 set "LIBS=gdi32.lib user32.lib winmm.lib shell32.lib"
 
-set "ASSET_SRCS=src\assets\asset_path.c src\assets\bal_palette.c src\assets\bal_tiles.c src\assets\bal_map.c src\assets\bal_sfx.c src\assets\bal_midi.c"
+set "ASSET_SRCS=src\assets\asset_path.c src\assets\bal_palette.c src\assets\bal_tiles.c src\assets\bal_map.c src\assets\bal_sprites.c src\assets\bal_sfx.c src\assets\bal_midi.c"
 set "RENDER_SRCS=src\render\surface.c src\render\map_renderer.c"
-set "GAME_SRCS=src\game\camera.c src\game\hud.c src\game\entities.c src\game\house.c src\game\game_loop.c"
+set "GAME_SRCS=src\game\camera.c src\game\hud.c src\game\menu.c src\game\entities.c src\game\house.c src\game\game_loop.c"
 set "PLATFORM_SRCS=src\platform\platform_win32.c"
+
 
 echo [2/3] Compiling Baldies C Unit Tests (bin\baldies_test.exe)...
 cl.exe %CFLAGS% /Fe:bin\baldies_test.exe /Fo:obj\ src\test_main.c %ASSET_SRCS% %RENDER_SRCS% /link %LIBS%
