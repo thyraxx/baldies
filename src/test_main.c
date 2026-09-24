@@ -231,15 +231,12 @@ int main(void) {
     // Draw 2 enemy Hairies
     bal_sprites_draw_baldie(surf, &sprites, true, 0, BALDIE_DIR_S, 0, 180, 80, &level_pal);
 
-    // Test Unit Separation: two units spawned close together push apart
-    baldie_t *sep1 = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 800.0f, 600.0f);
-    baldie_t *sep2 = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 802.0f, 600.0f);
-    float init_dist = fabsf(sep2->x - sep1->x);
-    for (int step = 0; step < 10; step++) {
-        entity_update_all(&emgr, &map, &tileset, &test_hmgr);
-    }
-    float after_dist = fabsf(sep2->x - sep1->x);
-    TEST_ASSERT(after_dist > init_dist, "Overlapping units push apart with soft separation");
+    // Test Unit-Unit Non-Collision: units pass freely through each other without mutual collision
+    baldie_t *pass1 = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 800.0f, 600.0f);
+    baldie_t *pass2 = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 800.0f, 600.0f);
+    entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+    TEST_ASSERT(pass1->active && pass2->active && fabsf(pass1->x - pass2->x) < 0.01f && fabsf(pass1->y - pass2->y) < 0.01f,
+                "Units have no mutual collision and can pass through each other");
 
     // Test Facing Direction: unit moving East faces East, unit moving South faces South
     baldie_t *b_dir = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 850.0f, 650.0f);
