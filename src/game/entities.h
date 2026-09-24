@@ -28,6 +28,8 @@ typedef enum {
     STATE_FIGHTING = 4
 } baldie_state_t;
 
+#define MAX_WAYPOINTS 64
+
 typedef struct {
     bool active;
     baldie_team_t team;
@@ -41,6 +43,12 @@ typedef struct {
     int health;
     int anim_frame;
     uint32_t anim_timer;
+
+    // Pathfinding waypoints
+    float waypoints_x[MAX_WAYPOINTS];
+    float waypoints_y[MAX_WAYPOINTS];
+    int waypoint_count;
+    int waypoint_index;
 } baldie_t;
 
 typedef struct {
@@ -56,6 +64,7 @@ typedef struct house_manager_s house_manager_t;
 
 void entity_manager_init(entity_manager_t *mgr);
 baldie_t* entity_spawn(entity_manager_t *mgr, baldie_team_t team, baldie_role_t role, float x, float y);
+void entity_set_path(baldie_t *b, const float *pts_x, const float *pts_y, int count);
 void entity_update_all(entity_manager_t *mgr, const bal_map_t *map, const bal_tileset_t *tileset, const house_manager_t *houses);
 void entity_render_all(const entity_manager_t *mgr, surface_t *dest, int camera_x, int camera_y, const bal_palette_t *palette, const bal_sprites_t *sprites);
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "assets/bal_palette.h"
 #include "assets/bal_tiles.h"
@@ -11,6 +12,7 @@
 #include "assets/asset_path.h"
 #include "render/map_renderer.h"
 #include "game/house.h"
+#include "game/pathfind.h"
 
 
 
@@ -146,6 +148,63 @@ int main(void) {
     }
     TEST_ASSERT(b_log->y < 1228.0f, "Baldie blocked by fallen tree log (does not penetrate to 1240)");
 
+    // 7. A* Pathfinding Around Obstacles
+    printf("\nTesting A* Pathfinding Around Obstacles:\n");
+    path_result_t path1, path2, path3, path4;
+
+    // Test Path 1: Navigate around cottage from south lawn (936, 760) to north lawn (936, 680)
+    bool p1_found = pathfind_find_path(&map, &tileset, &test_hmgr, 936.0f, 760.0f, 936.0f, 680.0f, &path1);
+    TEST_ASSERT(p1_found, "Find A* path around player cottage");
+    TEST_ASSERT(path1.count >= 2, "Path contains waypoints around the building");
+    // Verify all path points are walkable
+    bool p1_all_walkable = true;
+    for (int i = 0; i < path1.count; i++) {
+        int wtx = (int)(path1.points[i].x / 16.0f);
+        int wty = (int)(path1.points[i].y / 16.0f);
+        if (!pathfind_is_tile_walkable(&map, &tileset, &test_hmgr, wtx, wty)) {
+            p1_all_walkable = false;
+        }
+    }
+    TEST_ASSERT(p1_all_walkable, "All waypoints around cottage are on walkable terrain");
+
+    // Test Path 2: Navigate around stone monolith at (63, 50..51)
+    bool p2_found = pathfind_find_path(&map, &tileset, &test_hmgr, 1008.0f, 780.0f, 1008.0f, 840.0f, &path2);
+    TEST_ASSERT(p2_found, "Find A* path around stone monolith");
+
+    // Test Path 3: Navigate around fallen tree log at (52, 77..78)
+    bool p3_found = pathfind_find_path(&map, &tileset, &test_hmgr, 832.0f, 1210.0f, 832.0f, 1270.0f, &path3);
+    TEST_ASSERT(p3_found, "Find A* path around fallen tree log");
+
+    // Test Path 4: Clicking directly on solid obstacle (stone monolith at 1008, 808) finds path to adjacent walkable tile
+    bool p4_found = pathfind_find_path(&map, &tileset, &test_hmgr, 1008.0f, 760.0f, 1008.0f, 808.0f, &path4);
+    TEST_ASSERT(p4_found, "Clicking on stone monolith resolves to adjacent walkable tile");
+    if (p4_found && path4.count > 0) {
+        float last_x = path4.points[path4.count - 1].x;
+        float last_y = path4.points[path4.count - 1].y;
+        int ltx = (int)(last_x / 16.0f);
+        int lty = (int)(last_y / 16.0f);
+        TEST_ASSERT(pathfind_is_tile_walkable(&map, &tileset, &test_hmgr, ltx, lty), "Destination next to stone monolith is walkable");
+    }
+
+    // Test Path 5: Unit following path reaches destination around cottage
+    baldie_t *b_nav = entity_spawn(&emgr, TEAM_PLAYER, ROLE_WORKER, 936.0f, 760.0f);
+    if (p1_found && path1.count > 0) {
+        float px[MAX_PATH_NODES], py[MAX_PATH_NODES];
+        for (int i = 0; i < path1.count; i++) {
+            px[i] = path1.points[i].x;
+            py[i] = path1.points[i].y;
+        }
+        entity_set_path(b_nav, px, py, path1.count);
+        for (int step = 0; step < 300; step++) {
+            entity_update_all(&emgr, &map, &tileset, &test_hmgr);
+            if (b_nav->waypoint_count == 0) break;
+        }
+        float dest_x = path1.points[path1.count - 1].x;
+        float dest_y = path1.points[path1.count - 1].y;
+        float final_dist = fabsf(b_nav->x + 8.0f - dest_x) + fabsf(b_nav->y + 12.0f - dest_y);
+        TEST_ASSERT(final_dist < 16.0f, "Baldie follows waypoints and reaches destination around cottage");
+    }
+
 
     // 4. Sprites Test
     printf("\nTesting Baldie Sprites Loading:\n");
@@ -168,6 +227,40 @@ int main(void) {
     bal_sprites_draw_baldie(surf, &sprites, true, 0, 0, 180, 80, &level_pal);
     bal_sprites_draw_baldie(surf, &sprites, true, 0, 1, 210, 80, &level_pal);
 
+
+    // Generate tileset atlas image (40x32 tiles of 16x16 = 640x512)
+    surface_t *atlas = surface_create(640, 512);
+    for (uint32_t t = 0; t < tileset.num_tiles && t < 1280; t++) {
+        uint32_t col = t % 40;
+        uint32_t row = t / 40;
+        int dx = col * 16;
+        int dy = row * 16;
+        const uint8_t *tdata = bal_tileset_get_tile(&tileset, t);
+        for (int py = 0; py < 16; py++) {
+            for (int px = 0; px < 16; px++) {
+                uint8_t c = tdata[py * 16 + px];
+                atlas->pixels[(dy + py) * 640 + (dx + px)] = level_pal.argb[c];
+            }
+        }
+    }
+    // Save atlas BMP
+    uint8_t abmp_hdr[54] = {
+        'B', 'M',  0, 0, 0, 0,  0, 0, 0, 0,  54, 0, 0, 0,
+        40, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 0, 32, 0,
+        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0
+    };
+    uint32_t afsz = 54 + 640 * 512 * 4;
+    int32_t abw = 640, abh = -512;
+    memcpy(&abmp_hdr[2], &afsz, 4);
+    memcpy(&abmp_hdr[18], &abw, 4);
+    memcpy(&abmp_hdr[22], &abh, 4);
+    FILE *abf = fopen("test_tileset_atlas.bmp", "wb");
+    if (abf) {
+        fwrite(abmp_hdr, 1, 54, abf);
+        fwrite(atlas->pixels, 4, 640 * 512, abf);
+        fclose(abf);
+    }
+    surface_destroy(atlas);
 
     // Save test BMP
     uint8_t bmp_hdr[54] = {

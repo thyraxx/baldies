@@ -2,6 +2,7 @@
 #include "render/map_renderer.h"
 #include "assets/bal_sfx.h"
 #include "assets/bal_midi.h"
+#include "pathfind.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -210,18 +211,30 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
                     }
                 }
 
+                float dest_x = world_mx;
+                float dest_y = world_my;
+
                 if (target_house) {
                     // Send unit to the doorway of the house
-                    game->selected_unit->target_x = (float)(target_house->world_x + 16);
-                    game->selected_unit->target_y = (float)(target_house->world_y + 38);
+                    dest_x = (float)(target_house->world_x + 24);
+                    dest_y = (float)(target_house->world_y + 40);
                     game->selected_unit->house_id = target_house_id;
-                    bal_sfx_play(3); // Order voice
-                } else if (bal_map_is_walkable(&game->map, &game->tileset, world_mx, world_my) &&
-                           !house_manager_is_point_blocked(&game->house_mgr, world_mx, world_my)) {
-                    // Move selected unit to clicked location (only if walkable land and not blocked by obstacle)
-                    game->selected_unit->target_x = world_mx;
-                    game->selected_unit->target_y = world_my;
+                } else {
                     game->selected_unit->house_id = -1;
+                }
+
+                path_result_t path;
+                float feet_x = game->selected_unit->x + 8.0f;
+                float feet_y = game->selected_unit->y + 12.0f;
+                if (pathfind_find_path(&game->map, &game->tileset, &game->house_mgr,
+                                       feet_x, feet_y, dest_x, dest_y, &path)) {
+                    float pts_x[MAX_PATH_NODES];
+                    float pts_y[MAX_PATH_NODES];
+                    for (int p = 0; p < path.count; p++) {
+                        pts_x[p] = path.points[p].x;
+                        pts_y[p] = path.points[p].y;
+                    }
+                    entity_set_path(game->selected_unit, pts_x, pts_y, path.count);
                     bal_sfx_play(3); // Order voice
                 }
             }
