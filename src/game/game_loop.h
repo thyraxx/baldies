@@ -41,6 +41,7 @@ typedef struct {
     baldie_t *held_unit; // Unit currently picked up in the Hand
     int mouse_x;
     int mouse_y;
+    bool mouse_down;
     int grab_x;
     int grab_y;
     int held_anim_timer;

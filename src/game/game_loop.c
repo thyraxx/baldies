@@ -22,7 +22,8 @@ bool game_init(game_state_t *game, uint32_t level_num, int vp_w, int vp_h, bool 
     // Initialize HUD resources once
     hud_init(&game->hud_res);
 
-    // Initialize Cursor
+    // Initialize Cursor and default palette
+    bal_palette_load("BALS/LEV1PAL.BAL", &game->palette);
     bal_cursor_init(&game->cursor);
 
     // Initialize SFX
@@ -215,6 +216,11 @@ void game_drop_held_unit(game_state_t *game, float world_mx, float world_my) {
 void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int vp_h) {
     if (!game || !input) return;
 
+    // Track mouse position and button state
+    game->mouse_x = input->mouse_x;
+    game->mouse_y = input->mouse_y;
+    game->mouse_down = input->mouse_left_down;
+
     if (game->state == APP_STATE_MENU) {
         if (input->key_escape) {
             game->running = false;
@@ -236,10 +242,6 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
         game->state = APP_STATE_MENU;
         return;
     }
-
-    // Track mouse position and held unit
-    game->mouse_x = input->mouse_x;
-    game->mouse_y = input->mouse_y;
 
     if (game->held_unit) {
         game->held_anim_timer++;
@@ -399,6 +401,10 @@ void game_render(game_state_t *game, surface_t *dest) {
 
     if (game->state == APP_STATE_MENU) {
         menu_render(&game->menu, dest);
+        if (game->cursor.data) {
+            int cur_frame = game->mouse_down ? CURSOR_FRAME_GRAB_HAND : CURSOR_FRAME_OPEN_HAND;
+            bal_cursor_draw(dest, &game->cursor, cur_frame, game->mouse_x - 12, game->mouse_y - 8, &game->palette);
+        }
         return;
     }
 
@@ -441,6 +447,8 @@ void game_render(game_state_t *game, surface_t *dest) {
             int kick_frame = (game->held_anim_timer / 4) % 4;
             bal_sprites_draw_baldie(dest, &game->sprites, false, (int)game->held_unit->role, kick_frame,
                                     game->mouse_x - 8, game->mouse_y + 4, &game->palette);
+        } else if (game->mouse_down) {
+            cur_frame = CURSOR_FRAME_GRAB_HAND;
         }
         // Draw hand cursor on top
         bal_cursor_draw(dest, &game->cursor, cur_frame, game->mouse_x - 12, game->mouse_y - 8, &game->palette);

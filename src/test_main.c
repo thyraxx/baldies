@@ -239,6 +239,36 @@ int main(void) {
     bal_cursor_draw(surf, &cursor, CURSOR_FRAME_OPEN_HAND, 320, 240, &level_pal);
     bal_cursor_draw(surf, &cursor, CURSOR_FRAME_GRAB_HAND, 360, 240, &level_pal);
     TEST_ASSERT(true, "Render open hand (Frame 4) and closed hand (Frame 5) to surface");
+
+    // Test Main Menu cursor rendering with level_pal palette
+    menu_state_t test_menu;
+    menu_init(&test_menu);
+    surface_t *menu_surf = surface_create(640, 480);
+    menu_render(&test_menu, menu_surf);
+    // Draw Frame 4 (Open Hand) at (320, 200) and Frame 5 (Grab Hand) at (360, 200)
+    bal_cursor_draw(menu_surf, &cursor, CURSOR_FRAME_OPEN_HAND, 320, 200, &level_pal);
+    bal_cursor_draw(menu_surf, &cursor, CURSOR_FRAME_GRAB_HAND, 360, 200, &level_pal);
+    TEST_ASSERT(true, "Render authentic Hand cursor on Main Menu screen");
+
+    // Save test_menu_with_cursor.bmp
+    uint8_t mbmp_hdr[54] = {
+        'B', 'M',  0, 0, 0, 0,  0, 0, 0, 0,  54, 0, 0, 0,
+        40, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 0, 32, 0,
+        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0
+    };
+    uint32_t mfsz = 54 + 640 * 480 * 4;
+    int32_t mbw = 640, mbh = -480;
+    memcpy(&mbmp_hdr[2], &mfsz, 4);
+    memcpy(&mbmp_hdr[18], &mbw, 4);
+    memcpy(&mbmp_hdr[22], &mbh, 4);
+    FILE *mbf = fopen("test_menu_with_cursor.bmp", "wb");
+    if (mbf) {
+        fwrite(mbmp_hdr, 1, 54, mbf);
+        fwrite(menu_surf->pixels, 4, 640 * 480, mbf);
+        fclose(mbf);
+    }
+    surface_destroy(menu_surf);
+    menu_free(&test_menu);
     bal_cursor_free(&cursor);
 
     // Setup game state for grab & drop mechanics
