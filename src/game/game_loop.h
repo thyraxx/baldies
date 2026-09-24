@@ -38,6 +38,7 @@ typedef struct game_state_s {
     entity_manager_t entity_mgr;
     house_manager_t house_mgr;
     house_ui_t house_ui;
+    int escape_cooldown;
 
     baldie_t *selected_unit;
     baldie_t *held_unit; // Unit currently picked up in the Hand

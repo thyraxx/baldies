@@ -158,10 +158,12 @@ bool platform_init(const char *title, int width, int height, bool fullscreen) {
 }
 
 void platform_poll_events(platform_input_t *out_input) {
-    // Reset one-shot clicks
+    static bool g_prev_escape = false;
+    // Reset one-shot clicks and key presses
     g_current_input.mouse_left_clicked = false;
     g_current_input.mouse_right_clicked = false;
     g_current_input.mouse_left_released = false;
+    g_current_input.key_escape_pressed = false;
     g_current_input.key_toggle_fullscreen = false;
 
     MSG msg;
@@ -182,6 +184,12 @@ void platform_poll_events(platform_input_t *out_input) {
     }
     g_prev_left = g_current_input.mouse_left_down;
     g_prev_right = g_current_input.mouse_right_down;
+
+    // Detect escape key edge (single-shot press)
+    if (g_current_input.key_escape && !g_prev_escape) {
+        g_current_input.key_escape_pressed = true;
+    }
+    g_prev_escape = g_current_input.key_escape;
 
     if (g_current_input.key_toggle_fullscreen) {
         platform_toggle_fullscreen();

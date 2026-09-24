@@ -246,8 +246,14 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
     game->mouse_y = input->mouse_y;
     game->mouse_down = input->mouse_left_down;
 
+    if (game->escape_cooldown > 0) {
+        game->escape_cooldown--;
+    }
+
+    bool escape_pressed = (input->key_escape_pressed || input->key_escape) && (game->escape_cooldown == 0);
+
     if (game->state == APP_STATE_MENU) {
-        if (input->key_escape) {
+        if (escape_pressed) {
             game->running = false;
             return;
         }
@@ -263,8 +269,17 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
 
     // 0. Update House Interior Dialog if open
     if (game->house_ui.is_open) {
+        if (escape_pressed) {
+            house_ui_close(&game->house_ui);
+            game->escape_cooldown = 15; // Cooldown prevents cascading into menu or game quit
+            bal_sfx_play(5);
+            return;
+        }
         bool intercepted = house_ui_update(&game->house_ui, game, input, vp_w, vp_h);
         if (intercepted) {
+            if (!game->house_ui.is_open) {
+                game->escape_cooldown = 15;
+            }
             // World entities and houses continue updating in the background
             house_update_all(&game->house_mgr, &game->entity_mgr);
             entity_update_all(&game->entity_mgr, &game->map, &game->tileset, &game->house_mgr);
@@ -285,9 +300,10 @@ void game_tick(game_state_t *game, const platform_input_t *input, int vp_w, int 
     }
 
     // Return to menu on Escape if in playing state
-    if (input->key_escape) {
+    if (escape_pressed) {
         bal_midi_stop();
         game->state = APP_STATE_MENU;
+        game->escape_cooldown = 15; // Cooldown prevents held Escape from immediately exiting from menu
         return;
     }
 

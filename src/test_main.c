@@ -376,6 +376,7 @@ int main(void) {
     game_state_t test_game;
     memset(&test_game, 0, sizeof(test_game));
     test_game.state = APP_STATE_PLAYING;
+    test_game.running = true;
     test_game.map = map;
     test_game.tileset = tileset;
     test_game.palette = level_pal;
@@ -580,9 +581,18 @@ int main(void) {
     sel_input.mouse_left_clicked = false;
     sel_input.mouse_left_down = false;
     sel_input.key_escape = true;
+    sel_input.key_escape_pressed = true;
     game_tick(&test_game, &sel_input, 640, 480);
     TEST_ASSERT(test_game.house_ui.is_open == false, "Pressing Escape closes House UI");
     TEST_ASSERT(test_game.state == APP_STATE_PLAYING, "Escape closes House UI without quitting game");
+
+    // Sustained keypress over subsequent ticks: key remains held down, verify it does NOT trigger menu or quit!
+    sel_input.key_escape_pressed = false; // Key still held down (is_down=true), but not rising edge
+    for (int t = 0; t < 5; t++) {
+        game_tick(&test_game, &sel_input, 640, 480);
+    }
+    TEST_ASSERT(test_game.state == APP_STATE_PLAYING, "Holding Escape key does not cascade into pause menu");
+    TEST_ASSERT(test_game.running == true, "Holding Escape key does not exit or close the game");
 
     // Render verification of House Interior UI
     house_ui_open(&test_game.house_ui, 0);
